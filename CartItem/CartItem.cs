@@ -2,8 +2,8 @@
 
 internal readonly struct CartItem<TProduct>(TProduct product, int quantity)
 {
-    internal readonly int Quantity = quantity;
     internal readonly TProduct Product = product;
+    internal readonly int Quantity = quantity;
 
 
     public static bool operator ==(CartItem<TProduct> item1, CartItem<TProduct> item2) 

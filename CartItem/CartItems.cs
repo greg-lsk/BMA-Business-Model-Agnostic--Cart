@@ -4,6 +4,20 @@ internal class CartItems<TProduct>(List<(TProduct Product, int Quantity)> items)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = items;
 
+    internal int CountDistinct => _items.Count;
+    internal int CountTotal
+    {
+        get 
+        {
+            int total = 0;
+ 
+            for(int i=0; i < _items.Count; ++i)
+                total += _items[i].Quantity; 
+            
+            return total;  
+        }
+    }
+
     internal (TProduct Product, int Quantity) this[int index] => _items[index];
 
     internal void Add(TProduct product, int quantity)

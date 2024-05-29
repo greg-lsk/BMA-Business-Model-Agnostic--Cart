@@ -20,6 +20,16 @@ internal class CartItems<TProduct>
 
     internal (TProduct Product, int Quantity) this[int index] => _items[index];
 
+    internal bool Contains(TProduct product)
+    {
+        for(int i = 0; i < _items.Count; ++i)
+        {
+            if ( AreTheSame(_items[i].Product, product) ) return true;
+        }
+
+        return false;        
+    }
+
     internal void Add(TProduct product, int quantity)
     {
         var info = TryGetQuantity(product);

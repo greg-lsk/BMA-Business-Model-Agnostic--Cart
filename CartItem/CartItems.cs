@@ -1,8 +1,8 @@
 ﻿namespace Cart;
 
-internal class CartItems<TProduct>(List<CartItem<TProduct>> items)
+internal class CartItems<TProduct>(List<(TProduct Product, int Quantity)> items)
 {
-    private readonly List<CartItem<TProduct>> _items = items;
+    private readonly List<(TProduct Product, int Quantity)> _items = items;
 
 
     internal void Add(TProduct product, int quantity)
@@ -11,11 +11,11 @@ internal class CartItems<TProduct>(List<CartItem<TProduct>> items)
 
         if( info.index == -1 )
         {
-            _items.Add( new CartItem<TProduct>(product, quantity));
+            _items.Add( (product, quantity) );
             return;
         }
 
-        _items[info.index] = new CartItem<TProduct>(product, quantity + info.quantity);
+        _items[info.index] = (product, quantity + info.quantity);
     }
 
 
@@ -26,12 +26,12 @@ internal class CartItems<TProduct>(List<CartItem<TProduct>> items)
 
         for(int i = 0; i < _items.Count; ++i)
         {
-            var item = _items[i];
+            var (Product, Quantity) = _items[i];
 
-            if ( !AreTheSame(item.Product, product) ) continue;
+            if ( !AreTheSame(Product, product) ) continue;
 
             foundAt = i;
-            quantity = item.Quantity;
+            quantity = Quantity;
             break;
         }
 

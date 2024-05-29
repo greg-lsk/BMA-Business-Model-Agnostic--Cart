@@ -45,6 +45,19 @@ internal class CartItems<TProduct>
 
     internal void RemoveAt(int index) => _items.RemoveAt(index);
 
+    internal void UpdateQuantity(TProduct product, int quantity)
+    {
+        for(int i = 0; i < _items.Count; ++i)
+        {
+            var (Product, Quantity) = _items[i];
+
+            if ( AreTheSame(Product, product) )
+            {
+                _items[i] = (Product, quantity);
+                return;
+            }
+        }
+    }
 
     private (int index , int quantity) TryGetQuantity(TProduct product)
     {

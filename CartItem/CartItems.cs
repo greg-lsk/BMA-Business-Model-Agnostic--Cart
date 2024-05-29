@@ -18,6 +18,8 @@ internal class CartItems<TProduct>(List<(TProduct Product, int Quantity)> items)
         _items[info.index] = (product, quantity + info.quantity);
     }
 
+    internal void RemoveAt(int index) => _items.RemoveAt(index);
+
 
     private (int index , int quantity) TryGetQuantity(TProduct product)
     {

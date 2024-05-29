@@ -1,8 +1,8 @@
 ﻿namespace Cart;
 
-internal class CartItems<TProduct>(List<(TProduct Product, int Quantity)> items)
+internal class CartItems<TProduct>
 {
-    private readonly List<(TProduct Product, int Quantity)> _items = items;
+    private readonly List<(TProduct Product, int Quantity)> _items = [];
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal

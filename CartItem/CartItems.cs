@@ -4,6 +4,7 @@ internal class CartItems<TProduct>(List<(TProduct Product, int Quantity)> items)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = items;
 
+    internal (TProduct Product, int Quantity) this[int index] => _items[index];
 
     internal void Add(TProduct product, int quantity)
     {

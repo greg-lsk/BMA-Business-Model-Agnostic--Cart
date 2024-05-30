@@ -20,32 +20,38 @@ internal class CartItems<TProduct>
 
     internal (TProduct Product, int Quantity) this[int index] => _items[index];
 
-    internal bool Contains(TProduct product)
-    {
-        for(int i = 0; i < _items.Count; ++i)
-        {
-            if ( AreTheSame(_items[i].Product, product) ) return true;
-        }
-
-        return false;        
-    }
-
     internal void Add(TProduct product, int quantity)
     {
         var info = TryGetQuantity(product);
 
-        if( info.index == -1 )
+        if( !ProductFound(info.Index) )
         {
             _items.Add( (product, quantity) );
             return;
         }
 
-        _items[info.index] = (product, quantity + info.quantity);
+        _items[info.Index] = (product, quantity + info.Quantity);
     }
 
-    internal void RemoveAt(int index) => _items.RemoveAt(index);
+    internal void Delete(TProduct product)
+    {
+        int atIndex = TryGetIndexOf(product);
 
-    private (int index , int quantity) TryGetQuantity(TProduct product)
+        if( !ProductFound(atIndex) ) return;
+
+        _items.RemoveAt(atIndex);
+    }
+
+    internal void UpdateQuantity(TProduct product, int quantity)
+    {
+        int atIndex = TryGetIndexOf(product);
+
+        if( !ProductFound(atIndex) ) return;
+
+        _items[atIndex] = (product, quantity); 
+    }
+
+    private (int Index , int Quantity) TryGetQuantity(TProduct product)
     {
         int foundAt = -1;
         int quantity = 0;
@@ -61,8 +67,21 @@ internal class CartItems<TProduct>
             break;
         }
 
-        return (index: foundAt, quantity: quantity);
+        return (Index: foundAt, Quantity: quantity);
     }
 
+    private int TryGetIndexOf(TProduct product)
+    {
+        int foundAt = -1;
+
+        for(int i = 0; i < _items.Count; ++i)
+        {
+            if ( AreTheSame(_items[i].Product, product) ) return i;
+        }
+
+        return foundAt;
+    }
+
+    private static bool ProductFound(int index) => index >= 0;
     private static bool AreTheSame(TProduct product1, TProduct product2) => product1.Equals(product2);
 }

@@ -1,4 +1,6 @@
-﻿namespace Cart;
+﻿using System.Collections.ObjectModel;
+
+namespace Cart;
 
 internal class CartItems<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
@@ -61,6 +63,8 @@ internal class CartItems<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
             }
         } 
     }
+
+    internal ReadOnlyCollection<(TProduct Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 
     internal int CountOf(TProduct product)
     {

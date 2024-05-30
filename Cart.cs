@@ -1,4 +1,6 @@
-﻿namespace Cart;
+﻿using System.Collections.ObjectModel;
+
+namespace Cart;
 
 public delegate bool EqualityDelegate<TProduct>(TProduct product1, TProduct product2);
 public delegate int QuantityUpdateDelegate(int inCartQuantity);
@@ -15,6 +17,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) 
         => _items.UpdateQuantity(product, updateDelegate);
     
-    //Get Items
+    public ReadOnlyCollection<(TProduct Product, int Quantity)> Content() => _items.AsReadonly();
+
     //Pricing
 }

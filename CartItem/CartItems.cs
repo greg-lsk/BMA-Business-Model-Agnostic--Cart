@@ -48,15 +48,15 @@ internal class CartItems<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
             }
         }
     }
-
-    internal void UpdateQuantity(TProduct product, int quantity)
+   
+    internal void UpdateQuantity(TProduct product, QuantityUpdateDelegate update)
     {
         for(int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
             if( _equals(Product, product) )
             {
-                _items[i] = (Product, quantity);
+                _items[i] = (Product, update(Quantity));
                 return;
             }
         } 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "UnaXhwPRYS75cZIV++jmhH5d7rwzCGu2IgYTW/uVDt0KcF0GghbD2FsAmnJNi8v1bSv7t2ulxfBQkzTOKMynwA==",
+  "dgSpecHash": "z8eav7MrjJczEhbzgji+LyWl75ZYwSkm+OfwZqGNtE59itdvo4a+9Ph05opekJSTNfs5nhdgnDFU9elJOQLnkA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\BMACart.csproj",
+  "projectFilePath": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\Cart.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

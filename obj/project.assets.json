@@ -14,9 +14,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\BMACart.csproj",
-      "projectName": "BMACart",
-      "projectPath": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\BMACart.csproj",
+      "projectUniqueName": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\Cart.csproj",
+      "projectName": "Cart",
+      "projectPath": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\Cart.csproj",
       "packagesPath": "C:\\Users\\GregL\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\GregL\\source\\BMA(Business Model Agnostic) Cart\\obj\\",
       "projectStyle": "PackageReference",

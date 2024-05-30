@@ -1,8 +1,9 @@
 ﻿namespace Cart;
 
-internal class CartItems<TProduct>
+internal class CartItems<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
+    private readonly EqualityDelegate<TProduct> _equals = equalityDelegate;
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal
@@ -60,7 +61,7 @@ internal class CartItems<TProduct>
         {
             var (Product, Quantity) = _items[i];
 
-            if ( !AreTheSame(Product, product) ) continue;
+            if ( !_equals(Product, product)  ) continue;
 
             foundAt = i;
             quantity = Quantity;
@@ -76,12 +77,11 @@ internal class CartItems<TProduct>
 
         for(int i = 0; i < _items.Count; ++i)
         {
-            if ( AreTheSame(_items[i].Product, product) ) return i;
+            if ( _equals(_items[i].Product, product) ) return i;
         }
 
         return foundAt;
     }
 
     private static bool ProductFound(int index) => index >= 0;
-    private static bool AreTheSame(TProduct product1, TProduct product2) => product1.Equals(product2);
 }

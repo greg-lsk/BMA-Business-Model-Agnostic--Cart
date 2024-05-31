@@ -2,7 +2,7 @@
 
 namespace Cart;
 
-internal class CartItems<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
+internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
     private readonly EqualityDelegate<TProduct> _equals = equalityDelegate;

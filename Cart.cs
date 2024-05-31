@@ -7,7 +7,7 @@ public delegate int QuantityUpdateDelegate(int inCartQuantity);
 
 public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
-    private readonly CartItems<TProduct> _items = new(equalityDelegate);
+    private readonly StockedCollection<TProduct> _items = new(equalityDelegate);
 
     public int CountDistinct => _items.CountDistinct;
     public int CountTotal => _items.CountTotal;

@@ -21,7 +21,11 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         }
     }
 
-    internal (TProduct Product, int Quantity) this[int index] => _items[index];
+    internal (TProduct Product, int Quantity) this[int index]
+    {
+        get => _items[index];
+        set => _items[index] = value;
+    }
 
     internal void Add(TProduct product, int quantity)
     {

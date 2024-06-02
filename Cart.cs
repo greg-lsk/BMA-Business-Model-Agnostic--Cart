@@ -12,14 +12,17 @@ public class Cart<TProduct>(ICondition equalityCondition)
     public int CountDistinct => _items.CountDistinct;
     public int CountTotal => _items.CountTotal;
 
-    internal ICondition EqualityCondition { get; } = equalityCondition;
+    private EqualityDelegate<TProduct> _equalityDelegate;
+    private ICondition _equality = equalityCondition;
+    private ICondition _defaultEquality = new ConditionPipe<TProduct>()
+        .AddCondition(p => _equalityDelegate(p, ));
 
     public void Add(TProduct product, int quantity = 1) => 
     _items.Add
     (
         product, 
         quantity, 
-        () => _items.Contains(product), 
+        () => _items.Contains(product, _equality), 
         () => _items.UpdateQuantity(product, inCart => inCart + quantity) 
     );
  

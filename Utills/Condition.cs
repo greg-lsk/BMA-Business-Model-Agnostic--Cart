@@ -21,12 +21,12 @@ internal static class ConditionPipe01
 }
 
 
-internal interface ITraversable
+internal interface ICondition
 {
-    public bool TraverseWith<TSubject>(TSubject subject);
+    public bool AppliesTo<TSubject>(TSubject subject);
 }
 
-internal class ConditionPipe02<TSubject> : ITraversable
+internal class ConditionPipe02<TSubject> : ICondition
 {
     private readonly List<Predicate<TSubject>> _conditions = [];
 
@@ -35,7 +35,7 @@ internal class ConditionPipe02<TSubject> : ITraversable
         _conditions.Add(condition);
     }
 
-    public bool TraverseWith<TTraverver>(TTraverver subject)
+    public bool AppliesTo<TTraverver>(TTraverver subject)
     {   
         //Valid Type logic
         if(typeof(TSubject) != typeof(TTraverver))
@@ -46,15 +46,15 @@ internal class ConditionPipe02<TSubject> : ITraversable
     }
 }
 
-internal class ConditionGroup
+internal class ConditionGroup : ICondition
 {
-    private readonly Dictionary<Type, ITraversable> _groupedConditions = [];
+    private readonly Dictionary<Type, ICondition> _groupedConditions = [];
 
-    public bool TraverseWith<TSubject>(TSubject subject)
+    public bool AppliesTo<TSubject>(TSubject subject)
     {
         if(_groupedConditions.ContainsKey(typeof(TSubject)))
         {
-            return _groupedConditions[typeof(TSubject)].TraverseWith(subject);
+            return _groupedConditions[typeof(TSubject)].AppliesTo(subject);
         }
 
         return false;

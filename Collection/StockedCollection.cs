@@ -80,6 +80,12 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         return 0;
     }
 
+
+    internal class ParameterContext<TSubject>
+    {
+        internal TSubject Subject;
+    }
+
     internal bool Contains(TProduct product, EqualityDelegate<TProduct>? equalityDelegate = null)
     {
         equalityDelegate ??= _equals;
@@ -87,14 +93,16 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         ConditionPipe02<TProduct> productEquality = new();
         ConditionPipe02<int> quantityEquality = new();
         
+        var context = new ParameterContext<TProduct>();
+
         quantityEquality.AddCondition(q => q > 5);
-        productEquality.AddCondition(p => equalityDelegate(p, product));
+        productEquality.AddCondition(p => equalityDelegate(p, context.Subject));
 
         ConditionGroup equalityChecks = new();
 
         IterativeCheck(
             product => product, 
-            (p, q) => equalityChecks.TraverseWith(p),
+            (p, q) => equalityChecks.AppliesTo(p),
             p => equalityDelegate(p, product));
 
         for (int i = 0; i < _items.Count; ++i)

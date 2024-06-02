@@ -86,54 +86,21 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         internal TSubject Subject;
     }
 
-    internal bool Contains(TProduct product, EqualityDelegate<TProduct>? equalityDelegate = null)
+    internal bool Contains(TProduct product, ICondition condition)
     {
-        equalityDelegate ??= _equals;
-
-        ConditionPipe02<TProduct> productEquality = new();
-        ConditionPipe02<int> quantityEquality = new();
-        
-        var context = new ParameterContext<TProduct>();
-
-        quantityEquality.AddCondition(q => q > 5);
-        productEquality.AddCondition(p => equalityDelegate(p, context.Subject));
-
-        ConditionGroup equalityChecks = new();
-
-        IterativeCheck(
-            product => product, 
-            (p, q) => equalityChecks.AppliesTo(p),
-            p => equalityDelegate(p, product));
-
-        for (int i = 0; i < _items.Count; ++i)
-        {
-            if (equalityDelegate(_items[i].Product, product)) return true;
-        }
-
-        return false;
+        return IterativeCheck((p, q) => condition.AppliesTo(p) && condition.AppliesTo(q));
     }
 
 
     internal delegate bool CurrentCondition(TProduct product, int quantity = 0);
-    internal bool IterativeCheck<TRefProperty>(    
-        RefSelector<TProduct, TRefProperty> projector,
-        CurrentCondition check,
-        Predicate<TRefProperty>? condition = null,
-        Predicate<int>? quantityCond = null)
+    internal bool IterativeCheck(CurrentCondition check)
     {
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
 
             if(check(Product, Quantity)) return true;
-
-            if(ConditionPipe01.Check(projector(Product), condition)
-                              .Check(Quantity, quantityCond)
-                              .Result())
-            {
-                return true;   
-            }
-        }
+       }
 
         /*Do something here on miss*/
         return false;

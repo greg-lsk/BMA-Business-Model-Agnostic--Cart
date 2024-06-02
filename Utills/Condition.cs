@@ -12,21 +12,12 @@ internal readonly struct Condition(bool result = true)
     internal bool Result() => _result;
 }
 
-internal static class ConditionPipe01
-{
-    internal static Condition Check<TSubject>(TSubject? subject, Predicate<TSubject>? predicate)
-    {
-        return new( predicate(subject) );
-    }
-}
-
-
 internal interface ICondition
 {
     public bool AppliesTo<TSubject>(TSubject subject);
 }
 
-internal class ConditionPipe02<TSubject> : ICondition
+internal class ConditionPipe<TSubject> : ICondition
 {
     private readonly List<Predicate<TSubject>> _conditions = [];
 

@@ -7,11 +7,11 @@ internal delegate bool CheckDelegate<TProduct, TRefProperty>(
     RefSelector<TProduct, TRefProperty> selector, 
     Predicate<TRefProperty> condition);
 
-internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
+internal class StockedCollection<TProduct>(ICondition equality)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
 
-    private readonly EqualityDelegate<TProduct> _equals = equalityDelegate;
+    private readonly ICondition _equals = equality;
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal

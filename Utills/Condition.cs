@@ -1,6 +1,6 @@
 ﻿namespace Cart;
 
-internal interface ICondition
+public interface ICondition
 {
     public bool AppliesTo<TSubject>(TSubject subject);
 }

@@ -5,13 +5,14 @@ namespace Cart;
 public delegate bool EqualityDelegate<TProduct>(TProduct product1, TProduct product2);
 public delegate int QuantityUpdateDelegate(int inCartQuantity);
 
-public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
+public class Cart<TProduct>(ICondition equalityCondition)
 {
-    private readonly StockedCollection<TProduct> _items 
-    = new(equalityDelegate);
+    private readonly StockedCollection<TProduct> _items = new(equalityCondition);
 
     public int CountDistinct => _items.CountDistinct;
     public int CountTotal => _items.CountTotal;
+
+    internal ICondition EqualityCondition { get; } = equalityCondition;
 
     public void Add(TProduct product, int quantity = 1) => 
     _items.Add

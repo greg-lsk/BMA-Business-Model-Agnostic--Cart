@@ -2,6 +2,11 @@
 
 namespace Cart;
 
+internal delegate TRefProperty RefSelector<TProduct, TRefProperty>(TProduct from);
+internal delegate bool CheckDelegate<TProduct, TRefProperty>(
+    RefSelector<TProduct, TRefProperty> selector, 
+    Predicate<TRefProperty> condition);
+
 internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
@@ -79,6 +84,8 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
     {
         equalityDelegate ??= _equals;
 
+        IterativeCheck(product => product, p => equalityDelegate(p, product));
+
         for (int i = 0; i < _items.Count; ++i)
         {
             if (equalityDelegate(_items[i].Product, product)) return true;
@@ -87,12 +94,19 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         return false;
     }
 
-    internal bool IterativeCheck(Func<TProduct, int, bool> check)
+    internal bool IterativeCheck<TRefProperty>(    
+        RefSelector<TProduct, TRefProperty> selector, 
+        Predicate<TRefProperty> condition = null,
+        Predicate<int> quantityCond = null)
     {
+        
+        var combined = (TRefProperty prt, int qu) 
+        => (condition?.Invoke(prt) ?? true) && (quantityCond?.Invoke(qu) ?? true);
+
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (check(Product, Quantity)) /*do something here, on hit*/ return true;
+            if (combined.Invoke(selector(Product), Quantity)) /*do something here, on hit*/ return true;
         }
 
         /*Do something here on miss*/

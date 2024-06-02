@@ -18,7 +18,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     (
         product, 
         quantity, 
-        () => _items.IterativeCheck( (p, q) => product.Equals(p) && q > 15 ), 
+        () => _items.Contains(product), 
         () => _items.UpdateQuantity(product, inCart => inCart + quantity) 
     );
  

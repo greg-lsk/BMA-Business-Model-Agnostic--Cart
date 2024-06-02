@@ -84,7 +84,18 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
     {
         equalityDelegate ??= _equals;
 
-        IterativeCheck(product => product, p => equalityDelegate(p, product));
+        ConditionPipe02<TProduct> productEquality = new();
+        ConditionPipe02<int> quantityEquality = new();
+        
+        quantityEquality.AddCondition(q => q > 5);
+        productEquality.AddCondition(p => equalityDelegate(p, product));
+
+        ConditionGroup equalityChecks = new();
+
+        IterativeCheck(
+            product => product, 
+            (p, q) => equalityChecks.TraverseWith(p),
+            p => equalityDelegate(p, product));
 
         for (int i = 0; i < _items.Count; ++i)
         {
@@ -94,14 +105,19 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         return false;
     }
 
+
+    internal delegate bool CurrentCondition(TProduct product, int quantity = 0);
     internal bool IterativeCheck<TRefProperty>(    
-        RefSelector<TProduct, TRefProperty> projector, 
+        RefSelector<TProduct, TRefProperty> projector,
+        CurrentCondition check,
         Predicate<TRefProperty>? condition = null,
         Predicate<int>? quantityCond = null)
     {
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
+
+            if(check(Product, Quantity)) return true;
 
             if(ConditionPipe01.Check(projector(Product), condition)
                               .Check(Quantity, quantityCond)

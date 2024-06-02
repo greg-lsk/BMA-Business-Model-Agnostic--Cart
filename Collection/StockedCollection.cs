@@ -99,14 +99,16 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         Predicate<TRefProperty>? condition = null,
         Predicate<int>? quantityCond = null)
     {
-        
-        var combined = (TRefProperty prt, int qu) 
-        => (condition?.Invoke(prt) ?? true) && (quantityCond?.Invoke(qu) ?? true);
-
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (combined.Invoke(projector(Product), Quantity)) /*do something here, on hit*/ return true;
+
+            if(ConditionPipe.Check(projector(Product), condition)
+                            .Check(Quantity, quantityCond)
+                            .Result())
+            {
+                return true;   
+            }
         }
 
         /*Do something here on miss*/

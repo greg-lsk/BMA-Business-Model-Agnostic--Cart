@@ -103,9 +103,9 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         {
             var (Product, Quantity) = _items[i];
 
-            if(ConditionPipe.Check(projector(Product), condition)
-                            .Check(Quantity, quantityCond)
-                            .Result())
+            if(ConditionPipe01.Check(projector(Product), condition)
+                              .Check(Quantity, quantityCond)
+                              .Result())
             {
                 return true;   
             }

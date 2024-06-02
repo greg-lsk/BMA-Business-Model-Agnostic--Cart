@@ -95,9 +95,9 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
     }
 
     internal bool IterativeCheck<TRefProperty>(    
-        RefSelector<TProduct, TRefProperty> selector, 
-        Predicate<TRefProperty> condition = null,
-        Predicate<int> quantityCond = null)
+        RefSelector<TProduct, TRefProperty> projector, 
+        Predicate<TRefProperty>? condition = null,
+        Predicate<int>? quantityCond = null)
     {
         
         var combined = (TRefProperty prt, int qu) 
@@ -106,7 +106,7 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (combined.Invoke(selector(Product), Quantity)) /*do something here, on hit*/ return true;
+            if (combined.Invoke(projector(Product), Quantity)) /*do something here, on hit*/ return true;
         }
 
         /*Do something here on miss*/

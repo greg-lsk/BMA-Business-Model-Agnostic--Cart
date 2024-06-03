@@ -8,12 +8,11 @@ public delegate int QuantityUpdateDelegate(int inCartQuantity);
 public class Cart<TProduct>
 {
     private readonly StockedCollection<TProduct> _items;
+    private EqualityDelegate<TProduct> _equalityDelegate;
+    private ICondition _equality;
 
     public int CountDistinct => _items.CountDistinct;
     public int CountTotal => _items.CountTotal;
-
-    private EqualityDelegate<TProduct> _equalityDelegate;
-    private ICondition _equality;
 
     public Cart(EqualityDelegate<TProduct> equalityDelegate,
                 ICondition? equalityCondition = null)

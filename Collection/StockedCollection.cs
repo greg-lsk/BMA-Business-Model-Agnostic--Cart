@@ -11,7 +11,7 @@ internal class StockedCollection<TProduct>(ICondition equality)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
 
-    private readonly ICondition _equals = equality;
+    private readonly ICondition _equality = equality;
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal
@@ -44,9 +44,11 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal void Delete(TProduct product)
     {
+        var context = new ParameterContext<TProduct>(product);
+        
         for (int i = 0; i < _items.Count; ++i)
         {
-            if (_equals(_items[i].Product, product))
+            if (_equality.AppliesTo(_items[i].Product, context))
             {
                 _items.RemoveAt(i);
                 return;
@@ -56,10 +58,12 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal void UpdateQuantity(TProduct product, QuantityUpdateDelegate update)
     {
+        var context = new ParameterContext<TProduct>(product);
+
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (_equals(Product, product))
+            if (_equality.AppliesTo(Product, context))
             {
                 _items[i] = (Product, update(Quantity));
                 return;
@@ -71,10 +75,12 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal int CountOf(TProduct product)
     {
+        var context = new ParameterContext<TProduct>(product);        
+
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (_equals(Product, product)) return Quantity;
+            if (_equality.AppliesTo(Product, context)) return Quantity;
         }
 
         return 0;
@@ -83,7 +89,8 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal bool Contains(TProduct product, ICondition condition)
     {
-        return IterativeCheck((p, q) => condition.AppliesTo(p) && condition.AppliesTo(q));
+        var context = new ParameterContext<TProduct>(product);
+        return IterativeCheck((p, q) => condition.AppliesTo(p, context) && condition.AppliesTo(q));
     }
 
 

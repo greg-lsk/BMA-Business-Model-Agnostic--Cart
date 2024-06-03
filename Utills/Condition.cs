@@ -1,9 +1,9 @@
 ﻿namespace Cart;
 
 
-internal class ParameterContext<TSubject>
+public class ParameterContext<TSubject>(TSubject subject)
 {
-    internal TSubject Subject;
+    internal TSubject Subject = subject;
 }
 
 
@@ -11,19 +11,19 @@ internal delegate bool ConditionDelegate<TSubject>(TSubject subject, ParameterCo
 
 public interface ICondition
 {
-    public bool AppliesTo<TSubject>(TSubject subject);
+    public bool AppliesTo<TSubject>(TSubject subject, ParameterContext<TSubject>? context = null);
 }
 
 internal class ConditionPipe<TSubject> : ICondition
 {
-    private readonly List<Predicate<TSubject>> _conditions = [];
+    private readonly List<ConditionDelegate<TSubject>> _conditions = [];
 
-    internal void AddCondition(Predicate<TSubject> condition)
+    internal void AddCondition(ConditionDelegate<TSubject> condition)
     {
         _conditions.Add(condition);
     }
 
-    public bool AppliesTo<TTraverver>(TTraverver subject)
+    public bool AppliesTo<TTraverver>(TTraverver subject, ParameterContext<TTraverver>? context = null)
     {   
         //Valid Type logic
         if(typeof(TSubject) != typeof(TTraverver))
@@ -38,11 +38,11 @@ internal class ConditionGroup : ICondition
 {
     private readonly Dictionary<Type, ICondition> _groupedConditions = [];
 
-    public bool AppliesTo<TSubject>(TSubject subject)
+    public bool AppliesTo<TSubject>(TSubject subject, ParameterContext<TSubject>? context = null)
     {
         if(_groupedConditions.ContainsKey(typeof(TSubject)))
         {
-            return _groupedConditions[typeof(TSubject)].AppliesTo(subject);
+            return _groupedConditions[typeof(TSubject)].AppliesTo(subject, context);
         }
 
         return false;

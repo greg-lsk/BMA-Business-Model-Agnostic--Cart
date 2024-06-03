@@ -6,6 +6,9 @@ internal class ParameterContext<TSubject>
     internal TSubject Subject;
 }
 
+
+internal delegate bool ConditionDelegate<TSubject>(TSubject subject, ParameterContext<TSubject> context);
+
 public interface ICondition
 {
     public bool AppliesTo<TSubject>(TSubject subject);

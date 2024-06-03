@@ -1,5 +1,11 @@
 ﻿namespace Cart;
 
+
+internal class ParameterContext<TSubject>
+{
+    internal TSubject Subject;
+}
+
 public interface ICondition
 {
     public bool AppliesTo<TSubject>(TSubject subject);

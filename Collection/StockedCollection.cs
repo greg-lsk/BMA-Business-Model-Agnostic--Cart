@@ -81,11 +81,6 @@ internal class StockedCollection<TProduct>(ICondition equality)
     }
 
 
-    internal class ParameterContext<TSubject>
-    {
-        internal TSubject Subject;
-    }
-
     internal bool Contains(TProduct product, ICondition condition)
     {
         return IterativeCheck((p, q) => condition.AppliesTo(p) && condition.AppliesTo(q));

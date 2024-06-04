@@ -28,11 +28,11 @@ public class Cart<TProduct>
         _items = new(_equality);
     }
 
-    public bool Contains(TProduct product) => _items.Contains(product, (p1, p2) => _equalityDelegate(p1, p2)); 
+    public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
     public void Add(TProduct product, int quantity = 1) => 
         _items.Add(product, quantity)
-              .When(product, p => !Contains(p));
+              .WhenNot(Contains, product);
     public void Add(TProduct product, int quantity = 1) => 
     _items.Add
     (

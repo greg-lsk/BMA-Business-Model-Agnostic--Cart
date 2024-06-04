@@ -44,9 +44,9 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal readonly struct AddMiddleware
     {
-        internal AddMiddleware When<TSubject>(TSubject subject, Func<TSubject, bool> cond)
+        internal AddMiddleware WhenNot<TSubject>(Func<TSubject, bool> cond, TSubject subject)
         {
-            if( cond(subject) ) return this;
+            if( !cond(subject) ) return this;
             else return this;
         }
     }
@@ -98,11 +98,9 @@ internal class StockedCollection<TProduct>(ICondition equality)
         return 0;
     }
 
-
-    internal delegate bool ContainsCoreDelegate(TProduct current, TProduct provided);
-    internal bool Contains(TProduct product, ContainsCoreDelegate condition)
+    internal bool Contains(TProduct product, EqualityDelegate<TProduct> equalityDelegate)
     {
-        return IterativeCheck((p, q) => condition(p, product));
+        return IterativeCheck((p, q) => equalityDelegate(p, product));
     }
 
 

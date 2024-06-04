@@ -42,13 +42,25 @@ internal class StockedCollection<TProduct>(ICondition equality)
         else _items.Add((product, quantity));
     }
 
+    internal readonly struct AddMiddleware
+    {
+        internal AddMiddleware When<TSubject>(TSubject subject, Func<TSubject, bool> cond)
+        {
+            if( cond(subject) ) return this;
+            else return this;
+        }
+    }
+    internal AddMiddleware Add(TProduct product, int quantity) => new();
+    
+
     internal void Delete(TProduct product)
     {
-        var context = new ParameterContext<TProduct>(product);
+        var provider = new ParameterProvider();
+        provider[0] = product;
         
         for (int i = 0; i < _items.Count; ++i)
         {
-            if (_equality.AppliesTo(_items[i].Product, context))
+            if (_equality.AppliesTo(_items[i].Product, provider))
             {
                 _items.RemoveAt(i);
                 return;
@@ -87,10 +99,10 @@ internal class StockedCollection<TProduct>(ICondition equality)
     }
 
 
-    internal bool Contains(TProduct product, ICondition condition)
+    internal delegate bool ContainsCoreDelegate(TProduct current, TProduct provided);
+    internal bool Contains(TProduct product, ContainsCoreDelegate condition)
     {
-        var context = new ParameterContext<TProduct>(product);
-        return IterativeCheck((p, q) => condition.AppliesTo(p, context) && condition.AppliesTo(q));
+        return IterativeCheck((p, q) => condition(p, product));
     }
 
 

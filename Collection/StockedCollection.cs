@@ -49,6 +49,8 @@ internal class StockedCollection<TProduct>(ICondition equality)
             if( !cond(subject) ) return this;
             else return this;
         }
+
+        internal AddMiddleware Else<TSubject>(Action<TSubject> action, TSubject subject) => this;
     }
     internal AddMiddleware Add(TProduct product, int quantity) => new();
     

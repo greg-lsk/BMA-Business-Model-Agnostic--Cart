@@ -32,7 +32,8 @@ public class Cart<TProduct>
 
     public void Add(TProduct product, int quantity = 1) => 
         _items.Add(product, quantity)
-              .WhenNot(Contains, product);
+              .WhenNot(Contains, product)
+              .Else((p) => UpdateQuantity(p, i => i + quantity), product);
     public void Add(TProduct product, int quantity = 1) => 
     _items.Add
     (

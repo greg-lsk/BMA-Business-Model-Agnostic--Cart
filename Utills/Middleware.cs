@@ -25,4 +25,12 @@ internal readonly struct AddMiddleware(bool state = true)
         action.Invoke();
         return this;
     }
+
+    internal AddMiddleware Else(Action action)
+    {
+        if(!_state) return new(false);
+
+        action.Invoke();
+        return this;
+    }    
 }

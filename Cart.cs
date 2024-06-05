@@ -18,7 +18,8 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     public void Add(TProduct product, int quantity = 1) => 
     AddMiddlewareBuilder.Initialize()
                         .When(() => Contains(product))
-                        .Do(() => UpdateQuantity(product, i => i + quantity));
+                        .Do(() => UpdateQuantity(product, i => i + quantity))
+                        .Else(() => _items.NewEntry(product, quantity));
  
     public void Delete(TProduct product) => _items.Delete(product);
     public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) 

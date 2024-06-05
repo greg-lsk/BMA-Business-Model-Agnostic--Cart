@@ -2,11 +2,23 @@
 
 namespace Cart;
 
-internal class StockedCollection<TItem>(EqualityDelegate<TItem> equalityDelegate)
+internal delegate void NewEntry<TEntity>(TEntity ofEntity, int quantity);  
+internal class StockedCollection<TItem>
 {
-    private readonly List<(TItem Product, int Quantity)> _items = [];
-    private readonly EqualityDelegate<TItem> _equalityDelegate = equalityDelegate;
+    private readonly List<(TItem Product, int Quantity)> _items;
+    
+    private readonly NewEntry<TItem> _newEntryDelegate;
+    private readonly EqualityDelegate<TItem> _equalityDelegate;
 
+    public StockedCollection(EqualityDelegate<TItem> equalityDelegate)
+    {
+        _items = [];
+
+        _equalityDelegate = equalityDelegate;
+        _newEntryDelegate = (item, quantity) => _items.Add((item, quantity));
+    }
+
+    internal NewEntry<TItem> NewEntry => _newEntryDelegate;
     internal int CountDistinct => _items.Count;
     internal int CountTotal
     {

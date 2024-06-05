@@ -86,26 +86,6 @@ internal class StockedCollection<TItem>
         return IterativeCheck(iterationLogic);
     }
 
-
-    internal delegate bool CurrentCondition(TItem product, int quantity = 0);
-    internal delegate void OnHit();
-    internal delegate void OnMiss();
-
-    internal readonly struct IterationLogic
-    {
-        internal readonly CurrentCondition Check;
-
-        public IterationLogic(CurrentCondition check, OnHit? onHit = null, OnMiss? onMiss = null) : this()
-        {
-            Check = check;
-            OnHit = onHit;
-            OnMiss = onMiss;
-        }
-
-        internal readonly OnHit? OnHit;
-        internal readonly OnMiss? OnMiss; 
-    }
-
     internal bool IterativeCheck(IterationLogic logic)
     {
         for (int i = 0; i < _items.Count; ++i)

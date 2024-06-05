@@ -2,10 +2,10 @@
 
 namespace Cart;
 
-internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
+internal class StockedCollection<TItem>(EqualityDelegate<TItem> equalityDelegate)
 {
-    private readonly List<(TProduct Product, int Quantity)> _items = [];
-    private readonly EqualityDelegate<TProduct> _equalityDelegate = equalityDelegate;
+    private readonly List<(TItem Product, int Quantity)> _items = [];
+    private readonly EqualityDelegate<TItem> _equalityDelegate = equalityDelegate;
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal
@@ -21,16 +21,16 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         }
     }
 
-    internal (TProduct Product, int Quantity) this[int index]
+    internal (TItem Product, int Quantity) this[int index]
     {
         get => _items[index];
         set => _items[index] = value;
     }
 
-    internal AddMiddleware Add(TProduct product, int quantity) => new();
+    internal AddMiddleware Add(TItem product, int quantity) => new();
     
 
-    internal void Delete(TProduct product)
+    internal void Delete(TItem product)
     {   
         for (int i = 0; i < _items.Count; ++i)
         {
@@ -42,7 +42,7 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         }
     }
 
-    internal void UpdateQuantity(TProduct product, QuantityUpdateDelegate update)
+    internal void UpdateQuantity(TItem product, QuantityUpdateDelegate update)
     {
         for (int i = 0; i < _items.Count; ++i)
         {
@@ -55,9 +55,9 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         }
     }
 
-    internal ReadOnlyCollection<(TProduct Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
+    internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 
-    internal int CountOf(TProduct product)
+    internal int CountOf(TItem product)
     {
         for (int i = 0; i < _items.Count; ++i)
         {
@@ -68,13 +68,13 @@ internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDe
         return 0;
     }
 
-    internal bool Contains(TProduct product, EqualityDelegate<TProduct> equalityDelegate)
+    internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
         return IterativeCheck((p, q) => equalityDelegate(p, product));
     }
 
 
-    internal delegate bool CurrentCondition(TProduct product, int quantity = 0);
+    internal delegate bool CurrentCondition(TItem product, int quantity = 0);
     internal bool IterativeCheck(CurrentCondition check)
     {
         for (int i = 0; i < _items.Count; ++i)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using static Cart.StockedCollection<TProduct>;
 
 namespace Cart;
 
@@ -30,10 +31,10 @@ public class Cart<TProduct>
 
     public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
-    public void Add(TProduct product, int quantity = 1) => 
-        _items.Add(product, quantity)
-              .WhenNot(Contains, product)
-              .Else((p) => UpdateQuantity(p, i => i + quantity), product);
+    public void Add(TProduct product, int quantity = 1) => AddMiddlewareBuilder.Initialize()
+        .When(product, Contains)
+        .Do(product, (p) => UpdateQuantity(p, i => i + quantity));
+
     public void Add(TProduct product, int quantity = 1) => 
     _items.Add
     (

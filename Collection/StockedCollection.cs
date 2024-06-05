@@ -42,16 +42,31 @@ internal class StockedCollection<TProduct>(ICondition equality)
         else _items.Add((product, quantity));
     }
 
-    internal readonly struct AddMiddleware
+    internal readonly struct AddMiddleware(bool state = true)
     {
-        internal AddMiddleware WhenNot<TSubject>(Func<TSubject, bool> cond, TSubject subject)
+        private readonly bool _state = state;
+
+        internal AddMiddleware When<TSubject>(TSubject subject, Func<TSubject, bool> cond)
         {
-            if( !cond(subject) ) return this;
-            else return this;
+            if(!_state) return new(false);
+
+            if( !cond(subject) ) return new(true);
+            else return new(false);
         }
 
-        internal AddMiddleware Else<TSubject>(Action<TSubject> action, TSubject subject) => this;
+        internal AddMiddleware Do<TSubject>(TSubject subject, Action<TSubject> action)
+        {
+            if(!_state) return new(false);
+
+            action(subject);
+            return this;
+        }
     }
+    internal readonly struct AddMiddlewareBuilder
+    {
+        internal static AddMiddleware Initialize() => new();
+    }
+
     internal AddMiddleware Add(TProduct product, int quantity) => new();
     
 

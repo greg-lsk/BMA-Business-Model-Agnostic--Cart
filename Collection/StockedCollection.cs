@@ -82,21 +82,44 @@ internal class StockedCollection<TItem>
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
-        return IterativeCheck((p, q) => equalityDelegate(p, product));
+        IterationLogic iterationLogic = new((p, q) => equalityDelegate(p, product));
+        return IterativeCheck(iterationLogic);
     }
 
 
     internal delegate bool CurrentCondition(TItem product, int quantity = 0);
-    internal bool IterativeCheck(CurrentCondition check)
+    internal delegate void OnHit();
+    internal delegate void OnMiss();
+
+    internal readonly struct IterationLogic
+    {
+        internal readonly CurrentCondition Check;
+
+        public IterationLogic(CurrentCondition check, OnHit? onHit = null, OnMiss? onMiss = null) : this()
+        {
+            Check = check;
+            OnHit = onHit;
+            OnMiss = onMiss;
+        }
+
+        internal readonly OnHit? OnHit;
+        internal readonly OnMiss? OnMiss; 
+    }
+
+    internal bool IterativeCheck(IterationLogic logic)
     {
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
 
-            if(check(Product, Quantity)) return true;
-       }
+            if(logic.Check(Product, Quantity)) 
+            {
+                logic.OnHit?.Invoke(); 
+                return true;
+            }
+        }
 
-        /*Do something here on miss*/
+        logic.OnMiss?.Invoke();
         return false;
     } 
 }

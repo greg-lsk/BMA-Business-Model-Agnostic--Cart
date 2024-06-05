@@ -15,6 +15,15 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 
     public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
+    public void Add01(TProduct product, int quantity = 1)
+    {
+        IterationLogic<TProduct> logic = new(
+            check:  (p, q) => _equalityDelegate(p, product),
+            onHit:  () => _items.NewEntry(product, quantity),
+            onMiss: () => UpdateQuantity(product, i => i + quantity)
+        );
+        _items.IterativeCheck(logic);
+    }
     public void Add(TProduct product, int quantity = 1) => 
     AddMiddlewareBuilder.Initialize()
                         .When(() => Contains(product))

@@ -7,11 +7,10 @@ internal delegate bool CheckDelegate<TProduct, TRefProperty>(
     RefSelector<TProduct, TRefProperty> selector, 
     Predicate<TRefProperty> condition);
 
-internal class StockedCollection<TProduct>(ICondition equality)
+internal class StockedCollection<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
     private readonly List<(TProduct Product, int Quantity)> _items = [];
-
-    private readonly ICondition _equality = equality;
+    private readonly EqualityDelegate<TProduct> _equalityDelegate = equalityDelegate;
 
     internal int CountDistinct => _items.Count;
     internal int CountTotal
@@ -71,13 +70,10 @@ internal class StockedCollection<TProduct>(ICondition equality)
     
 
     internal void Delete(TProduct product)
-    {
-        var provider = new ParameterProvider();
-        provider[0] = product;
-        
+    {   
         for (int i = 0; i < _items.Count; ++i)
         {
-            if (_equality.AppliesTo(_items[i].Product, provider))
+            if (_equalityDelegate(_items[i].Product, product))
             {
                 _items.RemoveAt(i);
                 return;
@@ -87,12 +83,10 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal void UpdateQuantity(TProduct product, QuantityUpdateDelegate update)
     {
-        var context = new ParameterContext<TProduct>(product);
-
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (_equality.AppliesTo(Product, context))
+            if (_equalityDelegate(Product, product))
             {
                 _items[i] = (Product, update(Quantity));
                 return;
@@ -104,12 +98,10 @@ internal class StockedCollection<TProduct>(ICondition equality)
 
     internal int CountOf(TProduct product)
     {
-        var context = new ParameterContext<TProduct>(product);        
-
         for (int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
-            if (_equality.AppliesTo(Product, context)) return Quantity;
+            if (_equalityDelegate(Product, product)) return Quantity;
         }
 
         return 0;

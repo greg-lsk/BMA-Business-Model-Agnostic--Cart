@@ -16,7 +16,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
     public void Add(TProduct product, int quantity = 1) =>    
-    _items.Iteration((p, q) =>
+    _items.Iteration((TProduct p, ref int q) =>
     {
         if(_equalityDelegate(p, product))
         {

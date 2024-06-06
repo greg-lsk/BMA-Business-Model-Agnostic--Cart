@@ -79,7 +79,7 @@ internal class StockedCollection<TItem>
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
-        Iteration((p, q) =>
+        Iteration((TItem p, ref int q) =>
         {
             if(_equalityDelegate(p, product)) return;
             return;
@@ -88,14 +88,15 @@ internal class StockedCollection<TItem>
         return true;
     }
 
-    internal Action<Action<TItem, int>> Iteration => 
-    (Action<TItem, int> iterationBody) =>
+    internal delegate void Body(TItem item, ref int quantity);
+    internal Action<Body> Iteration => 
+    (Body iterationBody) =>
     {
         for(int i = 0; i < _items.Count; ++i)
         {
             var (Product, Quantity) = _items[i];
 
-            iterationBody(Product, Quantity);
+            iterationBody(Product, ref Quantity);
         }
     }; 
 }

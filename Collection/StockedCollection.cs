@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace Cart;
 
@@ -95,5 +96,16 @@ internal class StockedCollection<TItem>
         }
 
         return false;
-    } 
+    }
+
+    internal Action<Action<TItem, int>> Iteration => 
+    (Action<TItem, int> iterationBody) =>
+    {
+        for(int i = 0; i < _items.Count; ++i)
+        {
+            var (Product, Quantity) = _items[i];
+
+            iterationBody(Product, Quantity);
+        }
+    }; 
 }

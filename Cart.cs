@@ -25,6 +25,18 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
         _items.IterativeCheck(logic);
     }
 
+    public void Add02(TProduct product, int quantity = 1) =>    
+    _items.Iteration((p, q) =>
+    {
+        if(_equalityDelegate(p, product))
+        {
+            q += quantity;
+            return;
+        }
+        _items.NewEntry(product, quantity);
+    });
+    
+
     public void Delete(TProduct product) => _items.Delete(product);
     public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) 
         => _items.UpdateQuantity(product, updateDelegate);

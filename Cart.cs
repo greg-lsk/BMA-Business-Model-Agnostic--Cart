@@ -22,7 +22,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 
         if(_equals(Item, product))
         {
-            Quantity += quantity;
+            i.Current = new(Item, Quantity + quantity);
             return;
         }
 

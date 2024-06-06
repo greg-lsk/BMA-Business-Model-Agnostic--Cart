@@ -15,7 +15,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 
     public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
-    public void Add01(TProduct product, int quantity = 1)
+    public void Add(TProduct product, int quantity = 1)
     {
         IterationLogic<TProduct> logic = new(
             check:  (p, q) => _equalityDelegate(p, product),
@@ -24,12 +24,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
         );
         _items.IterativeCheck(logic);
     }
-    public void Add(TProduct product, int quantity = 1) => 
-    AddMiddlewareBuilder.Initialize()
-                        .When(() => Contains(product))
-                        .Do(() => UpdateQuantity(product, i => i + quantity))
-                        .Else(() => _items.NewEntry(product, quantity));
- 
+
     public void Delete(TProduct product) => _items.Delete(product);
     public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) 
         => _items.UpdateQuantity(product, updateDelegate);

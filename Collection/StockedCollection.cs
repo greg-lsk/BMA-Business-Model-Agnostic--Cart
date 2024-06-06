@@ -39,9 +39,6 @@ internal class StockedCollection<TItem>
         set => _items[index] = value;
     }
 
-    internal AddMiddleware Add(TItem product, int quantity) => new();
-    
-
     internal void Delete(TItem product)
     {   
         for (int i = 0; i < _items.Count; ++i)

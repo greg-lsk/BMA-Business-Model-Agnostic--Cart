@@ -8,17 +8,17 @@ public delegate void QuantityUpdateDelegate(out int inCartQuantity);
 public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
     private readonly StockedCollection<TProduct> _items = new(equalityDelegate);
-    private EqualityDelegate<TProduct> _equalityDelegate = equalityDelegate;
+    private EqualityDelegate<TProduct> _equals = equalityDelegate;
 
     public int CountDistinct => _items.CountDistinct;
     public int CountTotal => _items.CountTotal;
 
-    public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
+    public bool Contains(TProduct product) => _items.Contains(product, _equals); 
 
     public void Add(TProduct product, int quantity = 1) =>    
     _items.Iteration((TProduct p, ref int q) =>
     {
-        if(_equalityDelegate(p, product))
+        if(_equals(p, product))
         {
             q += quantity;
             return;
@@ -28,12 +28,12 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     
 
     public void Delete(TProduct product) => _items.Delete(product);
-    public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) =>
+    public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateQuantity) =>
     _items.Iteration((TProduct p, ref int q) =>
     {
-        if(_equalityDelegate(p, product)) 
+        if(_equals(p, product)) 
         {
-            updateDelegate(out q); 
+            updateQuantity(out q); 
             return;
         }
     }); 

@@ -76,16 +76,18 @@ internal class StockedCollection<TItem>
         return true;
     }
 
-    internal delegate void Body(Iterator<(TItem Item, int Quantity)> current);
-    internal Action<Body> Iteration => 
-    (Body iterationBody) =>
+    internal Iteration<TItem> Iteration => 
+    (EntryAction<TItem> entryAction) =>
     {
         for(int i = 0; i < _items.Count; ++i)
         {
-            iterationBody(new(_items, i));
+            entryAction(new(_items, i));
         }
     }; 
 }
+
+internal delegate void Iteration<TEntry>(EntryAction<TEntry> entryAction);
+internal delegate void EntryAction<TEntry>(Iterator<(TEntry Item, int Quantity)> current);
 
 internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
 {

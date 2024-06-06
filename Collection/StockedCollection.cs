@@ -27,8 +27,11 @@ internal class StockedCollection<TItem>
         {
             int total = 0;
 
-            for (int i = 0; i < _items.Count; ++i)
-                total += _items[i].Quantity;
+            Iteration(i =>
+            {
+                var (Item, Quantity) = i.Current;
+                total += Quantity;
+            });
 
             return total;
         }

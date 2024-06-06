@@ -3,7 +3,7 @@
 namespace Cart;
 
 public delegate bool EqualityDelegate<TProduct>(TProduct product1, TProduct product2);
-public delegate void QuantityUpdateDelegate(out int inCartQuantity);
+public delegate int QuantityUpdateDelegate(int inCartQuantity);
 
 public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
@@ -16,24 +16,29 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     public bool Contains(TProduct product) => _items.Contains(product, _equals); 
 
     public void Add(TProduct product, int quantity = 1) =>    
-    _items.Iteration((TProduct p, ref int q) =>
+    _items.Iteration(i =>
     {
-        if(_equals(p, product))
+        var (Item, Quantity) = i.Current;
+
+        if(_equals(Item, product))
         {
-            q += quantity;
+            Quantity += quantity;
             return;
         }
+
+        //This should be outside the Iteration!!!
         _items.NewEntry(product, quantity);
     });
     
 
     public void Delete(TProduct product) => _items.Delete(product);
     public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateQuantity) =>
-    _items.Iteration((TProduct p, ref int q) =>
+    _items.Iteration(i =>
     {
-        if(_equals(p, product)) 
+        var (Item, Quantity) = i.Current;
+        if(_equals(Item, product)) 
         {
-            updateQuantity(out q); 
+            i.Current = new(product, updateQuantity(Quantity)); 
             return;
         }
     }); 

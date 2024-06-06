@@ -66,24 +66,35 @@ internal class StockedCollection<TItem>
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
-        Iteration((TItem p, ref int q) =>
+        Iteration(i =>
         {
-            if(_equalityDelegate(p, product)) return;
+            var (Item, Quantity) = i.Current;
+            if(_equalityDelegate(Item, product)) return;
             return;
         });
 
         return true;
     }
 
-    internal delegate void Body(TItem item, ref int quantity);
+    internal delegate void Body(Iterator<(TItem Item, int Quantity)> current);
     internal Action<Body> Iteration => 
     (Body iterationBody) =>
     {
         for(int i = 0; i < _items.Count; ++i)
         {
-            var (Product, Quantity) = _items[i];
-
-            iterationBody(Product, ref Quantity);
+            iterationBody(new(_items, i));
         }
     }; 
+}
+
+internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
+{
+    private readonly List<TEntry> _list = list;
+    private readonly int _index = index;
+
+    internal TEntry Current
+    {
+        get => _list[_index];
+        set => _list[_index] = value;
+    }
 }

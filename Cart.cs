@@ -3,7 +3,7 @@
 namespace Cart;
 
 public delegate bool EqualityDelegate<TProduct>(TProduct product1, TProduct product2);
-public delegate int QuantityUpdateDelegate(int inCartQuantity);
+public delegate void QuantityUpdateDelegate(out int inCartQuantity);
 
 public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 {
@@ -28,8 +28,16 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     
 
     public void Delete(TProduct product) => _items.Delete(product);
-    public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) 
-        => _items.UpdateQuantity(product, updateDelegate);
+    public void UpdateQuantity(TProduct product, QuantityUpdateDelegate updateDelegate) =>
+    _items.Iteration((TProduct p, ref int q) =>
+    {
+        if(_equalityDelegate(p, product)) 
+        {
+            updateDelegate(out q); 
+            return;
+        }
+    }); 
+        
     
     public ReadOnlyCollection<(TProduct Product, int Quantity)> Content() => _items.AsReadonly();
 

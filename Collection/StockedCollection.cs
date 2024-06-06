@@ -51,19 +51,6 @@ internal class StockedCollection<TItem>
         }
     }
 
-    internal void UpdateQuantity(TItem product, QuantityUpdateDelegate update)
-    {
-        for (int i = 0; i < _items.Count; ++i)
-        {
-            var (Product, Quantity) = _items[i];
-            if (_equalityDelegate(Product, product))
-            {
-                _items[i] = (Product, update(Quantity));
-                return;
-            }
-        }
-    }
-
     internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 
     internal int CountOf(TItem product)

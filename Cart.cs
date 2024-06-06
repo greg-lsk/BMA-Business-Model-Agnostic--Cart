@@ -19,8 +19,8 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
     {
         IterationLogic<TProduct> logic = new(
             check:  (p, q) => _equalityDelegate(p, product),
-            onHit:  () => _items.NewEntry(product, quantity),
-            onMiss: () => UpdateQuantity(product, i => i + quantity)
+            onHit:  (p, q) => UpdateQuantity(product, i => i + quantity),
+            onMiss: (p, q) => _items.NewEntry(product, quantity)
         );
         _items.IterativeCheck(logic);
     }

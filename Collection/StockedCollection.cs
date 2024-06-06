@@ -92,14 +92,11 @@ internal class StockedCollection<TItem>
         {
             var (Product, Quantity) = _items[i];
 
-            if(logic.Check(Product, Quantity)) 
-            {
-                logic.OnHit?.Invoke(); 
-                return true;
-            }
+            if(logic.Check(Product, Quantity)) logic.OnHit?.Invoke(Product, Quantity); 
+            else logic.OnMiss?.Invoke(Product, Quantity);
+            
         }
 
-        logic.OnMiss?.Invoke();
         return false;
     } 
 }

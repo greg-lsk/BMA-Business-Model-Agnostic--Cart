@@ -80,22 +80,13 @@ internal class StockedCollection<TItem>
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
-        IterationLogic<TItem> iterationLogic = new((p, q) => equalityDelegate(p, product));
-        return IterativeCheck(iterationLogic);
-    }
-
-    internal bool IterativeCheck(IterationLogic<TItem> logic)
-    {
-        for (int i = 0; i < _items.Count; ++i)
+        Iteration((p, q) =>
         {
-            var (Product, Quantity) = _items[i];
+            if(_equalityDelegate(p, product)) return;
+            return;
+        });
 
-            if(logic.Check(Product, Quantity)) logic.OnHit?.Invoke(Product, Quantity); 
-            else logic.OnMiss?.Invoke(Product, Quantity);
-            
-        }
-
-        return false;
+        return true;
     }
 
     internal Action<Action<TItem, int>> Iteration => 

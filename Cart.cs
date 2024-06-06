@@ -15,17 +15,7 @@ public class Cart<TProduct>(EqualityDelegate<TProduct> equalityDelegate)
 
     public bool Contains(TProduct product) => _items.Contains(product, _equalityDelegate); 
 
-    public void Add(TProduct product, int quantity = 1)
-    {
-        IterationLogic<TProduct> logic = new(
-            check:  (p, q) => _equalityDelegate(p, product),
-            onHit:  (p, q) => UpdateQuantity(product, i => i + quantity),
-            onMiss: (p, q) => _items.NewEntry(product, quantity)
-        );
-        _items.IterativeCheck(logic);
-    }
-
-    public void Add02(TProduct product, int quantity = 1) =>    
+    public void Add(TProduct product, int quantity = 1) =>    
     _items.Iteration((p, q) =>
     {
         if(_equalityDelegate(p, product))

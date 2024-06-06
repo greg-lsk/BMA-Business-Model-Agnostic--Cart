@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Utils;
+using System.Collections.ObjectModel;
 
 namespace Cart;
 
@@ -76,12 +77,5 @@ internal class StockedCollection<TItem>
         return true;
     }
 
-    internal Iteration<TItem> Iteration => 
-    (EntryAction<TItem> entryAction) =>
-    {
-        for(int i = 0; i < _items.Count; ++i)
-        {
-            entryAction(new(_items, i));
-        }
-    }; 
+    internal Iteration<(TItem, int)> Iteration => Utils.Iteration.For(_items);
 }

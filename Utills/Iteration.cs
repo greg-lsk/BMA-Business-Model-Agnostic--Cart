@@ -27,7 +27,7 @@ internal readonly struct Iteration
         {
             (returnType, operationCommand) = entryAction(new(collection.ToList() , i));
 
-            if(operationCommand is Operation.Seize) break;
+            if(operationCommand is Operation.Break) break;
         }
 
         return returnType;
@@ -43,7 +43,7 @@ internal readonly struct Iteration
             Operation operationCommand;
             (returnType, operationCommand) = entryAction(new(collection.ToList(), i));
 
-            if (operationCommand is Operation.Seize) break;
+            if (operationCommand is Operation.Break) break;
         }
 
         return returnType;
@@ -52,7 +52,6 @@ internal readonly struct Iteration
 
 internal enum Operation
 {
-    Seize,
-    Continue,
-    Finished
+    Break,
+    Continue
 }

@@ -3,10 +3,10 @@ using System.Collections.ObjectModel;
 
 namespace Cart;
 
-internal delegate void NewEntry<TEntity>(TEntity ofEntity, int quantity);  
+internal delegate void NewEntry<TItem>(TItem entity, int quantity);  
 internal class StockedCollection<TItem>
 {
-    private readonly List<(TItem Product, int Quantity)> _items;
+    private readonly List<(TItem Item, int Quantity)> _items;
     
     private readonly NewEntry<TItem> _newEntryDelegate;
     private readonly EqualityDelegate<TItem> _equalityDelegate;
@@ -47,7 +47,7 @@ internal class StockedCollection<TItem>
     {   
         for (int i = 0; i < _items.Count; ++i)
         {
-            if (_equalityDelegate(_items[i].Product, product))
+            if (_equalityDelegate(_items[i].Item, product))
             {
                 _items.RemoveAt(i);
                 return;
@@ -60,20 +60,20 @@ internal class StockedCollection<TItem>
     {
         var (Product, Quantity) = i.Current;
 
-        if(_equalityDelegate(Product, product)) return (Quantity, Operation.Seize);
-
-        return (0, Operation.Finished);
+        return _equalityDelegate(Product, product)
+            ? (Quantity, Operation.Break)
+            : (0, Operation.Continue);
     });
     
-    internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
+    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) =>        
     Iteration.On(_items, i =>
     {
         var (Item, Quantity) = i.Current;
 
-        if(_equalityDelegate(Item, product)) return (true, Operation.Seize);
-
-        return (false, Operation.Finished);
+        return _equalityDelegate(Item, item)
+            ? (true, Operation.Break)
+            : (false, Operation.Continue); 
     });
     
-    internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
+    internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 }

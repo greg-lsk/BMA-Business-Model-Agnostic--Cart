@@ -59,13 +59,22 @@ internal class StockedCollection<TItem>
 
     internal int CountOf(TItem product)
     {
-        for (int i = 0; i < _items.Count; ++i)
-        {
-            var (Product, Quantity) = _items[i];
-            if (_equalityDelegate(Product, product)) return Quantity;
-        }
+        // for (int i = 0; i < _items.Count; ++i)
+        // {
+        //     var (Product, Quantity) = _items[i];
+        //     if (_equalityDelegate(Product, product)) return Quantity;
+        // }
 
-        return 0;
+        // return 0;
+
+        return Iteration.For(_items, i =>
+        {
+            var (Product, Quantity) = i.Current;
+
+            if(_equalityDelegate(Product, product)) return (Operation.Seize, Quantity);
+
+            return (Operation.Finished, 0);
+        });
     }
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        

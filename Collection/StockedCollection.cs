@@ -55,38 +55,25 @@ internal class StockedCollection<TItem>
         }
     }
 
-    internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
-
-    internal int CountOf(TItem product)
+    internal int CountOf(TItem product) =>
+    Iteration.On(_items, i =>
     {
-        // for (int i = 0; i < _items.Count; ++i)
-        // {
-        //     var (Product, Quantity) = _items[i];
-        //     if (_equalityDelegate(Product, product)) return Quantity;
-        // }
+        var (Product, Quantity) = i.Current;
 
-        // return 0;
+        if(_equalityDelegate(Product, product)) return (Quantity, Operation.Seize);
 
-        return Iteration.For(_items, i =>
-        {
-            var (Product, Quantity) = i.Current;
-
-            if(_equalityDelegate(Product, product)) return (Operation.Seize, Quantity);
-
-            return (Operation.Finished, 0);
-        });
-    }
-
+        return (0, Operation.Finished);
+    });
+    
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
-    Iteration.For(_items, i =>
+    Iteration.On(_items, i =>
     {
         var (Item, Quantity) = i.Current;
 
-        if(_equalityDelegate(Item, product)) return (Operation.Seize, true);
+        if(_equalityDelegate(Item, product)) return (true, Operation.Seize);
 
-        return (Operation.Finished, false);
+        return (false, Operation.Finished);
     });
     
-
-    //internal Iteration<(TItem, int)> Iteration => Utils.Iteration.For(_items);
+    internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 }

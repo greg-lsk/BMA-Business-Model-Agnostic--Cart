@@ -32,6 +32,23 @@ internal readonly struct Iteration
 
         return returnType;
     };
+
+    internal static TReturn For<TEntry, TReturn>(
+        IEnumerable<TEntry> collection,
+        EntryAction<TEntry, TReturn> entryAction)
+    {
+        TReturn returnType = default;
+        Operation operationCommand = Operation.Continue;
+
+        for(int i = 0; i < collection.Count(); ++i)
+        {
+            (operationCommand, returnType) = entryAction(new(collection.ToList() , i));
+
+            if(operationCommand is Operation.Seize) break;
+        }
+
+        return returnType;
+    }    
 }
 
 internal enum Operation

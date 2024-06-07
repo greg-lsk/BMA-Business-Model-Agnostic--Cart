@@ -27,7 +27,7 @@ internal class StockedCollection<TItem>
         {
             int total = 0;
 
-            Iteration(i =>
+            Iteration.For(_items, i =>
             {
                 var (Item, Quantity) = i.Current;
                 total += Quantity;
@@ -69,7 +69,7 @@ internal class StockedCollection<TItem>
     }
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
-    Iteration.For<(TItem, int), bool>(_items).Invoke(i =>
+    Iteration.For(_items, i =>
     {
         var (Item, Quantity) = i.Current;
 

@@ -1,7 +1,7 @@
 ﻿namespace Utils;
 
-internal delegate void Iteration<TEntry>(EntryAction<TEntry> entryAction);
-internal delegate void EntryAction<TEntry>(Iterator<TEntry> current);
+internal delegate TReturn Iteration<TEntry, TReturn>(EntryAction<TEntry, TReturn> entryAction);
+internal delegate (Operation OperationCommand, TReturn ReturnType) EntryAction<TEntry, TReturn>(Iterator<TEntry> current);
 
 internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
 {
@@ -17,12 +17,26 @@ internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
 
 internal readonly struct Iteration
 {
-    internal static Iteration<TEntry> For<TEntry>(IEnumerable<TEntry> collection) =>
-    (EntryAction<TEntry> entryAction) =>
+    internal static Iteration<TEntry, TReturn> For<TEntry, TReturn>(IEnumerable<TEntry> collection) =>
+    (entryAction) =>
     {
+        TReturn returnType = default;
+        Operation operationCommand = Operation.Continue;
+
         for(int i = 0; i < collection.Count(); ++i)
         {
-            entryAction(new(collection.ToList() , i));
+            (operationCommand, returnType) = entryAction(new(collection.ToList() , i));
+
+            if(operationCommand is Operation.Seize) break;
         }
+
+        return returnType;
     };
+}
+
+internal enum Operation
+{
+    Seize,
+    Continue,
+    Finished
 }

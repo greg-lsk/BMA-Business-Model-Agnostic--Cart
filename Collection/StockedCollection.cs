@@ -43,11 +43,11 @@ internal class StockedCollection<TItem>
         set => _items[index] = value;
     }
 
-    internal void Delete(TItem product)
+    internal void Delete(TItem item)
     {   
         for (int i = 0; i < _items.Count; ++i)
         {
-            if (_equalityDelegate(_items[i].Item, product))
+            if (_equalityDelegate(_items[i].Item, item))
             {
                 _items.RemoveAt(i);
                 return;
@@ -55,24 +55,18 @@ internal class StockedCollection<TItem>
         }
     }
 
-    internal int CountOf(TItem product) =>
-    Iteration.On(_items, i =>
+    internal int QuantityOf(TItem item) =>
+    Iteration.On(_items, i => _equalityDelegate(i.Current.Item, item) switch
     {
-        var (Product, Quantity) = i.Current;
-
-        return _equalityDelegate(Product, product)
-            ? (Quantity, Operation.Break)
-            : (0, Operation.Continue);
+        true  => (i.Current.Quantity, Operation.Break),
+        false => (0, Operation.Continue) 
     });
     
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) =>        
-    Iteration.On(_items, i =>
+    Iteration.On(_items, i => _equalityDelegate(i.Current.Item, item) switch
     {
-        var (Item, Quantity) = i.Current;
-
-        return _equalityDelegate(Item, item)
-            ? (true, Operation.Break)
-            : (false, Operation.Continue); 
+        true  => (true, Operation.Break),
+        false => (false, Operation.Continue)
     });
     
     internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

@@ -68,22 +68,16 @@ internal class StockedCollection<TItem>
         return 0;
     }
 
-    internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
+    internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
+    Iteration.For<(TItem, int), bool>(_items).Invoke(i =>
     {
-        bool found = false;
+        var (Item, Quantity) = i.Current;
 
-        Iteration(i =>
-        {
-            var (Item, Quantity) = i.Current;
-            if(_equalityDelegate(Item, product)) 
-            {
-                found = true; 
-                return;
-            }
-        });
+        if(_equalityDelegate(Item, product)) return (Operation.Seize, true);
 
-        return found;
-    }
+        return (Operation.Finished, false);
+    });
+    
 
-    internal Iteration<(TItem, int)> Iteration => Utils.Iteration.For(_items);
+    //internal Iteration<(TItem, int)> Iteration => Utils.Iteration.For(_items);
 }

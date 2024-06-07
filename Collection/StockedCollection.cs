@@ -70,14 +70,19 @@ internal class StockedCollection<TItem>
 
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate)
     {
+        bool found = false;
+
         Iteration(i =>
         {
             var (Item, Quantity) = i.Current;
-            if(_equalityDelegate(Item, product)) return;
-            return;
+            if(_equalityDelegate(Item, product)) 
+            {
+                found = true; 
+                return;
+            }
         });
 
-        return true;
+        return found;
     }
 
     internal Iteration<(TItem, int)> Iteration => Utils.Iteration.For(_items);

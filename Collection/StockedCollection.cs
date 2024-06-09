@@ -39,8 +39,20 @@ internal class StockedCollection<TItem>
         set => _items[index] = value;
     }
 
-    internal void Delete(TItem item) => 
-    Iteration.On(_items, i => 
+    internal void Delete(TItem product)
+    {   
+        for (int i = 0; i < _items.Count; ++i)
+        {
+            if (_equalityDelegate(_items[i].Product, product))
+            {
+                _items.RemoveAt(i);
+                return;
+            }
+        }
+    }
+
+    internal int CountOf(TItem product) =>
+    Iteration.On(_items, i =>
     {
         var (Product, Quantity) = i.Current;
 

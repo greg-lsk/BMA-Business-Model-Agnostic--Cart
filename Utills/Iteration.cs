@@ -4,10 +4,8 @@ internal delegate TReturn IterationFunction<TEntry, TReturn>(EntryFunction<TEntr
 internal delegate void IterationAction<TEntry>(EntryAction<TEntry> entryAction);
 
 
-internal delegate void EntryVoid<TEntry>(Iterator<TEntry> current);
-
-internal delegate Operation EntryAction<TEntry>(Iterator<TEntry> current);
-internal delegate (TReturn ReturnType, Operation OperationCommand) EntryFunction<TEntry, TReturn>(Iterator<TEntry> current);
+internal delegate void EntryAction<TEntry>(Iterator<TEntry> current);
+internal delegate TReturn? EntryFunction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> current);
 
 
 internal ref struct Iterator<TEntry>(List<TEntry> list)
@@ -54,15 +52,11 @@ internal readonly struct Iteration
         return returnType;
     }
 
-    internal static void On<TEntry>(IEnumerable<TEntry> sequence,
-                                    EntryVoid<TEntry> entryAction)
-    {
-
-        Loop(sequence, entryAction); 
-    }
-
+    internal static void On<TEntry>(IEnumerable<TEntry> sequence, EntryAction<TEntry> entryAction) 
+    => Loop(sequence, entryAction); 
+    
     private static void Loop<TEntry>(IEnumerable<TEntry> sequence,
-                             EntryVoid<TEntry> entryAction)
+                             EntryAction<TEntry> entryAction)
     {
         var list = sequence.ToList();
         var iterator = new Iterator<TEntry>(list);

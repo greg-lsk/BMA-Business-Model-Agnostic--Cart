@@ -1,11 +1,13 @@
 ﻿namespace Utils;
 
-internal delegate TReturn IterationFunction<TEntry, TReturn>(TrackedEntryAction<TEntry, TReturn> entryAction);
-internal delegate void IterationAction<TEntry>(EntryAction<TEntry> entryAction);
-
+internal delegate TReturn IterationFunction<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                             EntryActionTracked<TEntry, TReturn> entryAction);
+internal delegate void IterationAction<TEntry>(IEnumerable<TEntry> sequence,
+                                               EntryAction<TEntry> entryAction);
 
 internal delegate void EntryAction<TEntry>(Iterator<TEntry> iterator);
-internal delegate void TrackedEntryAction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> iterator);
+internal delegate void EntryActionTracked<TEntry, TReturn>(Tracker<TReturn> tracker,
+                                                           Iterator<TEntry> iterator);
 
 
 internal ref struct Iterator<TEntry>(List<TEntry> list)
@@ -39,33 +41,15 @@ internal ref struct Tracker<TSubject>
 
 internal readonly struct Iteration
 {
-    internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                 TrackedEntryAction<TEntry, TReturn> entryFunction)
-    => Loop(sequence, entryFunction);
-    
-    private static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                  TrackedEntryAction<TEntry, TReturn> entryFunction)
-    {
-        var list = sequence.ToList();
-        var iterator = new Iterator<TEntry>(list);
-        var returnTracker = new Tracker<TReturn>();
-
-        for(int i = 0; i < sequence.Count(); ++i)
-        {
-            entryFunction(returnTracker, iterator);
-
-            if(iterator.IsFrozen) break;
-            else iterator.Next();                
-        }
-
-        return returnTracker.Captured;               
-    } 
-
-
     internal static void On<TEntry>(IEnumerable<TEntry> sequence,
                                     EntryAction<TEntry> entryAction) 
-    => Loop(sequence, entryAction); 
+    => Loop(sequence, entryAction);
 
+    internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                 EntryActionTracked<TEntry, TReturn> entryActionTracked)
+    => Loop(sequence, entryActionTracked);
+    
+ 
     private static void Loop<TEntry>(IEnumerable<TEntry> sequence,
                                      EntryAction<TEntry> entryAction)
     {
@@ -79,5 +63,23 @@ internal readonly struct Iteration
             if(iterator.IsFrozen) break;
             else iterator.Next();
         }        
-    }            
+    }
+
+    private static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                  EntryActionTracked<TEntry, TReturn> entryActionTracked)
+    {
+        var list = sequence.ToList();
+        var iterator = new Iterator<TEntry>(list);
+        var returnTracker = new Tracker<TReturn>();
+
+        for(int i = 0; i < sequence.Count(); ++i)
+        {
+            entryActionTracked(returnTracker, iterator);
+
+            if(iterator.IsFrozen) break;
+            else iterator.Next();                
+        }
+
+        return returnTracker.Captured;               
+    }
 }

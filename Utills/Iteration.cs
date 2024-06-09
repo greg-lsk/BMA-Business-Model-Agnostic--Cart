@@ -1,11 +1,11 @@
 ﻿namespace Utils;
 
-internal delegate TReturn IterationFunction<TEntry, TReturn>(EntryFunction<TEntry, TReturn> entryAction);
+internal delegate TReturn IterationFunction<TEntry, TReturn>(TrackedEntryAction<TEntry, TReturn> entryAction);
 internal delegate void IterationAction<TEntry>(EntryAction<TEntry> entryAction);
 
 
-internal delegate void EntryAction<TEntry>(Iterator<TEntry> current);
-internal delegate void EntryFunction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> current);
+internal delegate void EntryAction<TEntry>(Iterator<TEntry> iterator);
+internal delegate void TrackedEntryAction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> iterator);
 
 
 internal ref struct Iterator<TEntry>(List<TEntry> list)
@@ -40,11 +40,11 @@ internal ref struct Tracker<TSubject>
 internal readonly struct Iteration
 {
     internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                 EntryFunction<TEntry, TReturn> entryFunction)
+                                                 TrackedEntryAction<TEntry, TReturn> entryFunction)
     => Loop(sequence, entryFunction);
     
     private static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                  EntryFunction<TEntry, TReturn> entryFunction)
+                                                  TrackedEntryAction<TEntry, TReturn> entryFunction)
     {
         var list = sequence.ToList();
         var iterator = new Iterator<TEntry>(list);
@@ -62,7 +62,8 @@ internal readonly struct Iteration
     } 
 
 
-    internal static void On<TEntry>(IEnumerable<TEntry> sequence, EntryAction<TEntry> entryAction) 
+    internal static void On<TEntry>(IEnumerable<TEntry> sequence,
+                                    EntryAction<TEntry> entryAction) 
     => Loop(sequence, entryAction); 
 
     private static void Loop<TEntry>(IEnumerable<TEntry> sequence,

@@ -11,7 +11,7 @@ internal class StockedCollection<TItem>
     private readonly NewEntry<TItem> _newEntryDelegate;
     private readonly EqualityDelegate<TItem> _equals;
 
-    public StockedCollection(EqualityDelegate<TItem> equalityDelegate)
+    public StockedCollection(EqualityDelegate<TItem> equals)
     {
         _items = [];
 
@@ -19,7 +19,7 @@ internal class StockedCollection<TItem>
         _newEntryDelegate = (item, quantity) => _items.Add((item, quantity));
     }
 
-    internal NewEntry<TItem> NewEntry => _newEntryDelegate;
+    internal NewEntry<TItem> NewEntry => _newEntry;
     internal int CountDistinct => _items.Count;
     internal int CountTotal
     {
@@ -33,7 +33,7 @@ internal class StockedCollection<TItem>
         }
     }
 
-    internal (TItem Product, int Quantity) this[int index]
+    internal (TItem Item, int Quantity) this[int index]
     {
         get => _items[index];
         set => _items[index] = value;

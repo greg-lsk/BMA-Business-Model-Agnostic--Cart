@@ -39,17 +39,24 @@ internal class StockedCollection<TItem>
         set => _items[index] = value;
     }
 
-    internal void Delete(TItem product)
-    {   
-        for (int i = 0; i < _items.Count; ++i)
-        {
-            if (_equalityDelegate(_items[i].Product, product))
-            {
-                _items.RemoveAt(i);
-                return;
-            }
-        }
-    }
+    internal void Delete(TItem product) =>
+    Iteration.On(_items, i =>  
+    {
+        if(!_equalityDelegate(i.Current.Product, product)) return;
+
+        _items.Remove(i.Current);
+        i.Break();
+    });
+    // {   
+    //     for (int i = 0; i < _items.Count; ++i)
+    //     {
+    //         if (_equalityDelegate(_items[i].Product, product))
+    //         {
+    //             _items.RemoveAt(i);
+    //             return;
+    //         }
+    //     }
+    // }
 
     internal int CountOf(TItem product) =>
     Iteration.On(_items, i =>

@@ -5,7 +5,7 @@ internal delegate void IterationAction<TEntry>(EntryAction<TEntry> entryAction);
 
 
 internal delegate void EntryAction<TEntry>(Iterator<TEntry> current);
-internal delegate TReturn? EntryFunction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> current);
+internal delegate void EntryFunction<TEntry, TReturn>(Tracker<TReturn> tracker, Iterator<TEntry> current);
 
 
 internal ref struct Iterator<TEntry>(List<TEntry> list)
@@ -25,38 +25,48 @@ internal ref struct Iterator<TEntry>(List<TEntry> list)
     internal void Next() => _currentIndex++;  
 }
 
-internal readonly ref struct Tracker<TSubject>(in TSubject? subject = default)
+internal ref struct Tracker<TSubject>
 {
-    private readonly ref readonly TSubject? _subject = ref subject;
-    internal readonly bool IsActive => _subject is not null;
-    
-    internal static Tracker<TSubject> Start(in TSubject subject) => new(in subject); 
+    private ref TSubject? _subject;
+
+    public Tracker(ref TSubject? subject) => _subject = ref subject;
+
+    internal readonly TSubject? Captured => _subject;
+
+    internal void Capture(in TSubject? subject) => _subject = subject;
+     
 }
 
 internal readonly struct Iteration
 {
     internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                 EntryFunction<TEntry, TReturn> entryAction)
+                                                 EntryFunction<TEntry, TReturn> entryFunction)
+    => Loop(sequence, entryFunction);
+    
+    private static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                  EntryFunction<TEntry, TReturn> entryFunction)
     {
-        TReturn? returnType = default;
         var list = sequence.ToList();
+        var iterator = new Iterator<TEntry>(list);
+        var returnTracker = new Tracker<TReturn>();
 
-        for (int i = 0; i < sequence.Count(); ++i)
+        for(int i = 0; i < sequence.Count(); ++i)
         {
-            Operation operationCommand;
-            (returnType, operationCommand) = entryAction(new(list, i));
+            entryFunction(returnTracker, iterator);
 
-            if (operationCommand is Operation.Break) break;
+            if(iterator.IsFrozen) break;
+            else iterator.Next();                
         }
 
-        return returnType;
-    }
+        return returnTracker.Captured;               
+    } 
+
 
     internal static void On<TEntry>(IEnumerable<TEntry> sequence, EntryAction<TEntry> entryAction) 
     => Loop(sequence, entryAction); 
-    
+
     private static void Loop<TEntry>(IEnumerable<TEntry> sequence,
-                             EntryAction<TEntry> entryAction)
+                                     EntryAction<TEntry> entryAction)
     {
         var list = sequence.ToList();
         var iterator = new Iterator<TEntry>(list);
@@ -69,10 +79,4 @@ internal readonly struct Iteration
             else iterator.Next();
         }        
     }            
-}
-
-internal enum Operation
-{
-    Break,
-    Continue
 }

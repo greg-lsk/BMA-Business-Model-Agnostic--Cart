@@ -8,17 +8,18 @@ internal class StockedCollection<TItem>
 {
     private readonly List<(TItem Item, int Quantity)> _items;
     
-    private readonly NewEntry<TItem> _newEntryDelegate;
+    private readonly NewEntry<TItem> _newEntry;
     private readonly EqualityDelegate<TItem> _equals;
 
     public StockedCollection(EqualityDelegate<TItem> equals)
     {
         _items = [];
 
-        _equals = equalityDelegate;
-        _newEntryDelegate = (item, quantity) => _items.Add((item, quantity));
+        _equals = equals;
+        _newEntry = (i, q) => _items.Add((i, q));
     }
 
+    internal NewEntry<TItem> NewEntry => _newEntry;
     internal NewEntry<TItem> NewEntry => _newEntry;
     internal int CountDistinct => _items.Count;
     internal int CountTotal
@@ -34,18 +35,20 @@ internal class StockedCollection<TItem>
     }
 
     internal (TItem Item, int Quantity) this[int index]
+    internal (TItem Item, int Quantity) this[int index]
     {
         get => _items[index];
         set => _items[index] = value;
     }
 
-    internal void Delete(TItem product) =>
+    internal void Delete(TItem item) =>
     Iteration.On(_items, i =>  
     {
-        if(!_equalityDelegate(i.Current.Product, product)) return;
-
-        _items.Remove(i.Current);
-        i.Break();
+        if(_equals(i.Current.Item, item))
+        {
+            _items.Remove(i.Current);
+            i.Break();
+        }    
     });
     // {   
     //     for (int i = 0; i < _items.Count; ++i)
@@ -58,24 +61,24 @@ internal class StockedCollection<TItem>
     //     }
     // }
 
-    internal int CountOf(TItem product) =>
-    Iteration.On(_items, i =>
+    internal int CountOf(TItem item) =>
+    Iteration.On<(TItem Item, int Quantity), int>(_items, (t, i) => 
     {
-        var (Product, Quantity) = i.Current;
-
-        if(_equalityDelegate(Product, product)) return (Quantity, Operation.Seize);
-
-        return (0, Operation.Finished);
+        if(_equals(i.Current.Item, item))
+        {
+            t.Capture(i.Current.Quantity);
+            i.Break();
+        }
     });
     
-    internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
-    Iteration.On(_items, i =>
+    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) =>        
+    Iteration.On<(TItem Item, int Quantity), bool>(_items, (t, i) =>
     {
-        var (Item, Quantity) = i.Current;
+        var found = _equals(i.Current.Item, item);
 
-        if(_equalityDelegate(Item, product)) return (true, Operation.Seize);
+        if(_equalityDelegate(Item, product)) return (true, Operation.Break);
 
-        return (false, Operation.Finished);
+        return (false, Operation.Continue);
     });
     
     internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

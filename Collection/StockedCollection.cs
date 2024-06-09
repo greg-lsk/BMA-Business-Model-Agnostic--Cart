@@ -51,16 +51,6 @@ internal class StockedCollection<TItem>
         _items.Remove(i.Current);
         i.Break();
     });
-    // {   
-    //     for (int i = 0; i < _items.Count; ++i)
-    //     {
-    //         if (_equalityDelegate(_items[i].Product, product))
-    //         {
-    //             _items.RemoveAt(i);
-    //             return;
-    //         }
-    //     }
-    // }
 
     internal int CountOf(TItem product) =>
     Iteration.On(_items, i =>

@@ -5,20 +5,26 @@ internal delegate void IterationAction<TEntry>(EntryAction<TEntry> entryAction);
 
 
 internal delegate void EntryVoid<TEntry>(Iterator<TEntry> current);
+
 internal delegate Operation EntryAction<TEntry>(Iterator<TEntry> current);
 internal delegate (TReturn ReturnType, Operation OperationCommand) EntryFunction<TEntry, TReturn>(Iterator<TEntry> current);
 
 
-internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
+internal ref struct Iterator<TEntry>(List<TEntry> list)
 {
     private readonly List<TEntry> _list = list;
-    private readonly int _index = index;
+    private int _currentIndex = -1;
 
-    internal TEntry Current
-    {
-        get => _list[_index];
-        set => _list[_index] = value;
+    internal readonly TEntry Current
+    { 
+        get => _list[_currentIndex];
+        set => _list[_currentIndex] = value;
     }
+
+    internal bool IsFrozen { get; private set; } = false;
+     
+    internal void Break() => IsFrozen = true;
+    internal void Next() => _currentIndex++;  
 }
 
 internal readonly ref struct Tracker<TSubject>(in TSubject? subject = default)
@@ -49,24 +55,25 @@ internal readonly struct Iteration
     }
 
     internal static void On<TEntry>(IEnumerable<TEntry> sequence,
-                                    EntryAction<TEntry> entryAction)
-    {
-        var list = sequence.ToList();
-
-        for (int i = 0; i < sequence.Count(); ++i)
-        {
-            Operation operationCommand = entryAction(new(list, i));
-
-            if (operationCommand is Operation.Break) break;
-        }
-    }
-
-    internal static void On<TEntry>(IEnumerable<TEntry> sequence,
                                     EntryVoid<TEntry> entryAction)
     {
-        var list = sequence.ToList();
 
-        for (int i = 0; i < sequence.Count(); ++i) entryAction(new(list, i)); 
+        Loop(sequence, entryAction); 
+    }
+
+    private static void Loop<TEntry>(IEnumerable<TEntry> sequence,
+                             EntryVoid<TEntry> entryAction)
+    {
+        var list = sequence.ToList();
+        var iterator = new Iterator<TEntry>(list);
+
+        for(int i = 0; i < sequence.Count(); ++i)
+        {
+            entryAction(iterator);
+
+            if(iterator.IsFrozen) break;
+            else iterator.Next();
+        }        
     }            
 }
 

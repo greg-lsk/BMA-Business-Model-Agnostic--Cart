@@ -21,6 +21,14 @@ internal readonly struct Iterator<TEntry>(List<TEntry> list, int index)
     }
 }
 
+internal readonly ref struct Tracker<TSubject>(in TSubject? subject = default)
+{
+    private readonly ref readonly TSubject? _subject = ref subject;
+    internal readonly bool IsActive => _subject is not null;
+    
+    internal static Tracker<TSubject> Start(in TSubject subject) => new(in subject); 
+}
+
 internal readonly struct Iteration
 {
     internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,

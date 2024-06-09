@@ -27,7 +27,7 @@ internal class StockedCollection<TItem>
         {
             int total = 0;
 
-            Iteration.For(_items, i =>
+            Iteration.On(_items, i =>
             {
                 var (Item, Quantity) = i.Current;
                 total += Quantity;
@@ -60,9 +60,9 @@ internal class StockedCollection<TItem>
     {
         var (Product, Quantity) = i.Current;
 
-        if(_equalityDelegate(Product, product)) return (Quantity, Operation.Seize);
+        if(_equalityDelegate(Product, product)) return (Quantity, Operation.Break);
 
-        return (0, Operation.Finished);
+        return (0, Operation.Continue);
     });
     
     internal bool Contains(TItem product, EqualityDelegate<TItem> equalityDelegate) =>        
@@ -70,9 +70,9 @@ internal class StockedCollection<TItem>
     {
         var (Item, Quantity) = i.Current;
 
-        if(_equalityDelegate(Item, product)) return (true, Operation.Seize);
+        if(_equalityDelegate(Item, product)) return (true, Operation.Break);
 
-        return (false, Operation.Finished);
+        return (false, Operation.Continue);
     });
     
     internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

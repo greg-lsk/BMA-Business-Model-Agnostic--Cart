@@ -42,7 +42,7 @@ internal class StockedCollection<TItem>
     }
 
     internal void Delete(TItem item) =>
-    Iteration.On(_items, i =>  
+    Iteration.On(_items).Run(i =>  
     {
         if(_equals(i.Current.Item, item))
         {

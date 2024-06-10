@@ -39,34 +39,21 @@ internal ref struct Tracker<TSubject>
      
 }
 
+internal readonly struct Iteration
+{
+    internal static ActionProvider<TEntry> On<TEntry>(IEnumerable<TEntry> sequence) => new(sequence);
+}
+
 internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
 
-    internal TReturn? Run<TReturn>(EntryActionTracked<TEntry, TReturn> entryActionTracked)
-    => Iteration.Loop(_sequence, entryActionTracked);
-}
-
-internal readonly struct Iteration
-{
-    internal static ActionProvider<TEntry> On<TEntry>(IEnumerable<TEntry> sequence) => new(sequence);
-
-    internal static void On<TEntry>(IEnumerable<TEntry> sequence,
-                                    EntryAction<TEntry> entryAction) 
-    => Loop(sequence, entryAction);
-
-    internal static TReturn? On<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                 EntryActionTracked<TEntry, TReturn> entryActionTracked)
-    => Loop(sequence, entryActionTracked);
-    
- 
-    private static void Loop<TEntry>(IEnumerable<TEntry> sequence,
-                                     EntryAction<TEntry> entryAction)
+    internal void Run(EntryAction<TEntry> entryAction)
     {
-        var list = sequence.ToList();
+        var list = _sequence.ToList();
         var iterator = new Iterator<TEntry>(list);
 
-        for(int i = 0; i < sequence.Count(); ++i)
+        for(int i = 0; i < _sequence.Count(); ++i)
         {
             entryAction(iterator);
 
@@ -75,14 +62,13 @@ internal readonly struct Iteration
         }        
     }
 
-    internal static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                  EntryActionTracked<TEntry, TReturn> entryActionTracked)
+    internal TReturn? Run<TReturn>(EntryActionTracked<TEntry, TReturn> entryActionTracked)
     {
-        var list = sequence.ToList();
+        var list = _sequence.ToList();
         var iterator = new Iterator<TEntry>(list);
         var returnTracker = new Tracker<TReturn>();
 
-        for(int i = 0; i < sequence.Count(); ++i)
+        for(int i = 0; i < _sequence.Count(); ++i)
         {
             entryActionTracked(returnTracker, iterator);
 

@@ -13,7 +13,7 @@ internal delegate void EntryActionTracked<TEntry, TReturn>(Tracker<TReturn> trac
 internal ref struct Iterator<TEntry>(List<TEntry> list)
 {
     private readonly List<TEntry> _list = list;
-    private int _currentIndex = -1;
+    private int _currentIndex = 0;
 
     internal readonly TEntry Current
     { 

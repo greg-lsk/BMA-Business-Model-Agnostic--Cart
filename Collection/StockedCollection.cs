@@ -26,7 +26,7 @@ internal class StockedCollection<TItem>
         get
         {
             int total = 0;
-            Iteration.On(_items, i => {total += i.Current.Quantity;});
+            Iteration.On(_items).Run(i => {total += i.Current.Quantity;});
             return total;
         }
     }
@@ -38,7 +38,7 @@ internal class StockedCollection<TItem>
     }
 
     internal void Delete(TItem item) =>
-    Iteration.On(_items, i =>  
+    Iteration.On(_items).Run(i =>  
     {
         if(_equals(i.Current.Item, item))
         {

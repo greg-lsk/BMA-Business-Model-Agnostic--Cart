@@ -62,7 +62,7 @@ internal class StockedCollection<TItem>
     // }
 
     internal int CountOf(TItem item) =>
-    Iteration.On<(TItem Item, int Quantity), int>(_items, (t, i) => 
+    Iteration.On(_items).Run<int>((t, i) => 
     {
         if(_equals(i.Current.Item, item))
         {
@@ -71,8 +71,8 @@ internal class StockedCollection<TItem>
         }
     });
     
-    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) =>        
-    Iteration.On<(TItem Item, int Quantity), bool>(_items, (t, i) =>
+    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
+    Iteration.On(_items).Run<bool>((t, i) =>
     {
         var found = _equals(i.Current.Item, item);
 

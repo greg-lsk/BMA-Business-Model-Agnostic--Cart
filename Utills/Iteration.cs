@@ -39,8 +39,18 @@ internal ref struct Tracker<TSubject>
      
 }
 
+internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
+{
+    private readonly IEnumerable<TEntry> _sequence = sequence;
+
+    internal TReturn? Run<TReturn>(EntryActionTracked<TEntry, TReturn> entryActionTracked)
+    => Iteration.Loop(_sequence, entryActionTracked);
+}
+
 internal readonly struct Iteration
 {
+    internal static ActionProvider<TEntry> On<TEntry>(IEnumerable<TEntry> sequence) => new(sequence);
+
     internal static void On<TEntry>(IEnumerable<TEntry> sequence,
                                     EntryAction<TEntry> entryAction) 
     => Loop(sequence, entryAction);
@@ -65,7 +75,7 @@ internal readonly struct Iteration
         }        
     }
 
-    private static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+    internal static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
                                                   EntryActionTracked<TEntry, TReturn> entryActionTracked)
     {
         var list = sequence.ToList();

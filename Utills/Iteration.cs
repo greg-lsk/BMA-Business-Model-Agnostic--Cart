@@ -1,13 +1,12 @@
 ﻿namespace Utils;
 
 internal delegate TReturn IterationFunction<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                             EntryActionTracked<TEntry, TReturn> entryAction);
+                                                             EntryFunction<TEntry, TReturn> entryAction);
 internal delegate void IterationAction<TEntry>(IEnumerable<TEntry> sequence,
                                                EntryAction<TEntry> entryAction);
 
 internal delegate void EntryAction<TEntry>(Iterator<TEntry> iterator);
-internal delegate void EntryActionTracked<TEntry, TReturn>(Tracker<TReturn> tracker,
-                                                           Iterator<TEntry> iterator);
+internal delegate TReturn? EntryFunction<TEntry, TReturn>(Iterator<TEntry> iterator);
 
 
 internal ref struct Iterator<TEntry>(List<TEntry> list)
@@ -62,20 +61,18 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         }        
     }
 
-    internal TReturn? Run<TReturn>(EntryActionTracked<TEntry, TReturn> entryActionTracked)
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> entryActionTracked)
     {
         var list = _sequence.ToList();
         var iterator = new Iterator<TEntry>(list);
-        var returnTracker = new Tracker<TReturn>();
 
+        TReturn? returnValue = default;
         for(int i = 0; i < _sequence.Count(); ++i)
         {
-            entryActionTracked(returnTracker, iterator);
-
-            if(iterator.IsFrozen) break;
+            returnValue = entryActionTracked(iterator);
+            if(iterator.IsFrozen) return returnValue; 
             else iterator.Next();                
         }
-
-        return returnTracker.Captured;               
+        return returnValue;               
     }
 }

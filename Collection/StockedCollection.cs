@@ -48,25 +48,22 @@ internal class StockedCollection<TItem>
     });
 
     internal int CountOf(TItem item) =>
-    Iteration.On(_items).Run<int>((t, i) => 
+    Iteration.On(_items).Run(i => 
     {
         if(_equals(i.Current.Item, item))
         {
-            t.Capture(i.Current.Quantity);
             i.Break();
+            return i.Current.Quantity;
         }
+        return 0;
     });
     
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
-    Iteration.On(_items).Run<bool>((t, i) =>
+    Iteration.On(_items).Run(i =>
     {
         var found = _equals(i.Current.Item, item);
-
-        if(found)
-        {
-            t.Capture(found);
-            i.Break();
-        }
+        if(found) i.Break();
+        return found;
     });
     
     internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

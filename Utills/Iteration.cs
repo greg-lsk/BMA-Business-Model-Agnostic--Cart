@@ -1,29 +1,23 @@
 ﻿namespace Utils;
 
-internal delegate TReturn IterationFunction<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                             EntryFunction<TEntry, TReturn> entryAction);
-internal delegate void IterationAction<TEntry>(IEnumerable<TEntry> sequence,
-                                               EntryAction<TEntry> entryAction);
-
-internal delegate void EntryAction<TEntry>(Iterator<TEntry> iterator);
-internal delegate TReturn? EntryFunction<TEntry, TReturn>(Iterator<TEntry> iterator);
+internal delegate void EntryAction<TEntry>(ref Iterator<TEntry> iterator);
+internal delegate TReturn? EntryFunction<TEntry, TReturn>(ref Iterator<TEntry> iterator);
 
 
-internal ref struct Iterator<TEntry>(List<TEntry> list)
+internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
 {
-    private readonly List<TEntry> _list = list;
+    private readonly IEnumerable<TEntry> _sequence = sequence;
     private int _currentIndex = 0;
+    private bool _isBroken = false;
 
-    internal readonly TEntry Current
-    { 
-        get => _list[_currentIndex];
-        set => _list[_currentIndex] = value;
-    }
 
-    internal bool IsFrozen { get; private set; } = false;
-     
-    internal void Break() => IsFrozen = true;
-    internal void Next() => _currentIndex++;  
+    internal readonly TEntry Current => _sequence.ElementAt(_currentIndex);
+    internal readonly bool Finished => _currentIndex > _sequence.Count();
+    internal readonly bool IsBroken => _isBroken;
+
+    internal void Break() => _isBroken = true;
+    internal void Move(int step = 1) => _currentIndex+=step;
+    internal void Reset() {_currentIndex = 0; _isBroken = false;}  
 }
 
 internal ref struct Tracker<TSubject>
@@ -54,10 +48,10 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 
         for(int i = 0; i < _sequence.Count(); ++i)
         {
-            entryAction(iterator);
+            entryAction(ref iterator);
 
-            if(iterator.IsFrozen) break;
-            else iterator.Next();
+            if(iterator.IsBroken) break;
+            else iterator.Move();
         }        
     }
 
@@ -69,9 +63,9 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         TReturn? returnValue = default;
         for(int i = 0; i < _sequence.Count(); ++i)
         {
-            returnValue = entryActionTracked(iterator);
-            if(iterator.IsFrozen) return returnValue; 
-            else iterator.Next();                
+            returnValue = entryActionTracked(ref iterator);
+            if(iterator.IsBroken) return returnValue; 
+            else iterator.Move();                
         }
         return returnValue;               
     }

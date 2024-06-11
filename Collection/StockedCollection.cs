@@ -27,7 +27,7 @@ internal class StockedCollection<TItem>
         get
         {
             int total = 0;
-            Iteration.On(_items).Run(i => total += i.Current.Quantity);
+            Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) => total += i.Current.Quantity);
             return total;
         }
     }
@@ -40,7 +40,7 @@ internal class StockedCollection<TItem>
     }
 
     internal void Remove(TItem item) =>
-    Iteration.On(_items).Run(i =>  
+    Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>  
     {
         if(_equals(i.Current.Item, item))
         {
@@ -60,7 +60,7 @@ internal class StockedCollection<TItem>
     // }
 
     internal int CountOf(TItem item) =>
-    Iteration.On(_items).Run(i =>
+    Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
     {
         if(_equals(i.Current.Item, item))
         {
@@ -71,7 +71,7 @@ internal class StockedCollection<TItem>
     });
     
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
-    Iteration.On(_items).Run(i =>
+    Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
     {
         var found = _equals(i.Current.Item, item);
 

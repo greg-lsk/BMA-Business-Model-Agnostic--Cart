@@ -10,14 +10,15 @@ internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
     private int _currentIndex = 0;
     private bool _isBroken = false;
 
-
+    internal readonly int CurrentIndex => _currentIndex;
     internal readonly TEntry Current => _sequence.ElementAt(_currentIndex);
+
     internal readonly bool Finished => _currentIndex > _sequence.Count();
     internal readonly bool IsBroken => _isBroken;
 
     internal void Break() => _isBroken = true;
     internal void Move(int step = 1) => _currentIndex+=step;
-    internal void Reset() {_currentIndex = 0; _isBroken = false;}  
+    internal void Reset() {_currentIndex = 0; _isBroken = false;} 
 }
 
 internal ref struct Tracker<TSubject>

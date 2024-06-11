@@ -15,6 +15,7 @@ internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
 
     internal readonly bool Finished => _currentIndex > _sequence.Count();
     internal readonly bool IsBroken => _isBroken;
+    internal readonly bool CanIncrement => !IsBroken && !Finished; 
 
     internal void Break() => _isBroken = true;
     internal void Move(int step = 1) => _currentIndex+=step;
@@ -42,32 +43,30 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
 
-    internal void Run(EntryAction<TEntry> entryAction)
+    internal void Run(EntryAction<TEntry> action) => Loop(action);
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => Loop(function);
+
+    private void Loop(EntryAction<TEntry> action)
     {
-        var list = _sequence.ToList();
-        var iterator = new Iterator<TEntry>(list);
+        var iterator = new Iterator<TEntry>(_sequence);
 
-        for(int i = 0; i < _sequence.Count(); ++i)
-        {
-            entryAction(ref iterator);
-
-            if(iterator.IsBroken) break;
-            else iterator.Move();
-        }        
+        do{
+            action(ref iterator);
+            iterator.Move();
+        }while(iterator.CanIncrement);
     }
 
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> entryActionTracked)
+    private TReturn? Loop<TReturn>(EntryFunction<TEntry, TReturn> function)
     {
-        var list = _sequence.ToList();
-        var iterator = new Iterator<TEntry>(list);
+        var iterator = new Iterator<TEntry>(_sequence);
+        
+        TReturn? returnValue;
 
-        TReturn? returnValue = default;
-        for(int i = 0; i < _sequence.Count(); ++i)
-        {
-            returnValue = entryActionTracked(ref iterator);
-            if(iterator.IsBroken) return returnValue; 
-            else iterator.Move();                
-        }
-        return returnValue;               
-    }
+        do{
+            returnValue = function(ref iterator);
+            iterator.Move();
+        }while(iterator.CanIncrement);
+
+        return returnValue;
+    }    
 }

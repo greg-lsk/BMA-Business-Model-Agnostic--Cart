@@ -61,7 +61,19 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
             action(i.Current);
             i.Break();
         }
-    }); 
+    });
+
+    internal TReturn? ActWhen<TReturn>(Predicate<TEntry> condition, EntryFunction<TEntry, TReturn> function) => 
+    Loop((ref Iterator<TEntry> i) => 
+    {
+        TReturn? returnValue = default;
+        if(condition(i.Current))
+        {
+            returnValue = function(i.Current);
+            i.Break();
+        }
+        return returnValue;
+    });     
     
     private void Loop(ActionViaIterator<TEntry> action)
     {

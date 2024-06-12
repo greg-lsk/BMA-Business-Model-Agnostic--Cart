@@ -43,16 +43,10 @@ internal class StockedCollection<TItem>
                       action:    i => _items.Remove(i));
     
     internal int CountOf(TItem item) =>
-    Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
-    {
-        if(_equals(i.Current.Item, item))
-        {
-            i.Break();
-            return i.Current.Quantity;
-        }
-        return 0;
-    });
-    
+    Iteration.On(_items)
+             .ActWhen(condition: i => _equals(i.Item, item),
+                      function:  i => i.Quantity);
+        
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
     Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
     {

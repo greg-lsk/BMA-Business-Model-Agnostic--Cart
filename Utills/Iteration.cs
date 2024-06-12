@@ -1,8 +1,10 @@
 ﻿namespace Utils;
 
-internal delegate void EntryAction<TEntry>(ref Iterator<TEntry> iterator);
-internal delegate TReturn? EntryFunction<TEntry, TReturn>(ref Iterator<TEntry> iterator);
+internal delegate void ActionViaIterator<TEntry>(ref Iterator<TEntry> iterator);
+internal delegate TReturn? FunctionViaIterator<TEntry, TReturn>(ref Iterator<TEntry> iterator);
 
+internal delegate void EntryAction<TEntry>(TEntry entry);
+internal delegate TReturn? EntryFunction<TEntry, TReturn>(TEntry entry);
 
 internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
 {
@@ -46,11 +48,11 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
 
-    internal void Run(EntryAction<TEntry> action) => Loop(action);
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => Loop(function);
+    internal void Run(ActionViaIterator<TEntry> action) => Loop(action);
+    internal TReturn? Run<TReturn>(FunctionViaIterator<TEntry, TReturn> function) => Loop(function);
 
 
-    internal void Run(Action<TEntry> action) => Loop((ref Iterator<TEntry> i) => action(i.Current));
+    internal void Run(EntryAction<TEntry> action) => Loop((ref Iterator<TEntry> i) => action(i.Current));
 
     internal void ActWhen(Predicate<TEntry> condition, Action<TEntry> action) => Loop(
     (ref Iterator<TEntry> i) => 
@@ -62,7 +64,7 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         }
     }); 
     
-    private void Loop(EntryAction<TEntry> action)
+    private void Loop(ActionViaIterator<TEntry> action)
     {
         var iterator = new Iterator<TEntry>(_sequence);
 
@@ -72,7 +74,7 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         }while(iterator.CanIncrement);
     }
 
-    private TReturn? Loop<TReturn>(EntryFunction<TEntry, TReturn> function)
+    private TReturn? Loop<TReturn>(FunctionViaIterator<TEntry, TReturn> function)
     {
         var iterator = new Iterator<TEntry>(_sequence);
         

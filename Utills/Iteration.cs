@@ -57,7 +57,7 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     internal void Run(EntryAction<TEntry> action) =>
     IterationCore.ActWhen(_sequence, _condition, action);
 
-    internal void Run<TReturn>(EntryFunction<TEntry, TReturn> function) =>
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) =>
     IterationCore.ActWhen(_sequence, _condition, function);
 }
 

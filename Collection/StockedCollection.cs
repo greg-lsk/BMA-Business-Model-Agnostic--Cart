@@ -39,16 +39,10 @@ internal class StockedCollection<TItem>
         set => _items[index] = value;
     }
 
-    internal void Remove(TItem item) =>
-    Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>  
-    {
-        if(_equals(i.Current.Item, item))
-        {
-            _items.Remove(i.Current);
-            i.Break();
-        }    
-    });
-
+    internal void Remove(TItem item) => 
+    Iteration.On(_items)
+             .WhenMet(i => _equals(i.Item, item), i => _items.Remove(i));
+    
     internal int CountOf(TItem item) =>
     Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
     {

@@ -6,14 +6,17 @@ internal delegate TReturn? EntryFunction<TEntry, TReturn>(ref Iterator<TEntry> i
 
 internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
 {
+    private const int _indexerStart = 0;
+    private const int _indexOffset = 1 - _indexerStart; 
+
     private readonly IEnumerable<TEntry> _sequence = sequence;
-    private int _currentIndex = 0;
+    private int _currentIndex = _indexerStart;
     private bool _isBroken = false;
 
     internal readonly int CurrentIndex => _currentIndex;
     internal readonly TEntry Current => _sequence.ElementAt(_currentIndex);
 
-    internal readonly bool Finished => _currentIndex > _sequence.Count();
+    internal readonly bool Finished => _currentIndex + _indexOffset > _sequence.Count();
     internal readonly bool IsBroken => _isBroken;
     internal readonly bool CanIncrement => !IsBroken && !Finished; 
 

@@ -46,6 +46,9 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
     internal void Run(EntryAction<TEntry> action) => Loop(action);
     internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => Loop(function);
 
+
+    internal void Run(Action<TEntry> action) => Loop((ref Iterator<TEntry> i) => action(i.Current));
+
     internal void ActWhen(Predicate<TEntry> condition, Action<TEntry> action) => Loop(
     (ref Iterator<TEntry> i) => 
     {

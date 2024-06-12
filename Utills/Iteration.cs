@@ -65,7 +65,7 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
 internal static class IterationCore
 {    
     internal static void Loop<TEntry>(IEnumerable<TEntry> sequence,
-                                     ActionViaIterator<TEntry> action)
+                                      ActionViaIterator<TEntry> action)
     {
         var iterator = new Iterator<TEntry>(sequence);
 
@@ -76,7 +76,7 @@ internal static class IterationCore
     }
 
     internal static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                  FunctionViaIterator<TEntry, TReturn> function)
+                                                   FunctionViaIterator<TEntry, TReturn> function)
     {
         var iterator = new Iterator<TEntry>(sequence);
         
@@ -95,29 +95,34 @@ internal static class ConditionCore
 {
     internal static void ActWhen<TEntry>(IEnumerable<TEntry> sequence,
                                          Predicate<TEntry> condition,
-                                         EntryAction<TEntry> action) => 
-    IterationCore.Loop(sequence, (ref Iterator<TEntry> i) => 
-    {
-        if(condition(i.Current))
+                                         EntryAction<TEntry> action) 
+    => IterationCore.Loop(
+        sequence, 
+        (ref Iterator<TEntry> i) => 
         {
-            action(i.Current);
-            i.Break();
-        }            
-    });
+            if(condition(i.Current))
+            {
+                action(i.Current);
+                i.Break();
+            }            
+        });
+ 
     
     internal static TReturn? ActWhen<TEntry, TReturn>(IEnumerable<TEntry> sequence,
                                                       Predicate<TEntry> condition,
-                                                      EntryFunction<TEntry, TReturn> function) => 
-    IterationCore.Loop(sequence, (ref Iterator<TEntry> i) => 
-    {
-        TReturn? returnValue = default;
-
-        if(condition(i.Current))
+                                                      EntryFunction<TEntry, TReturn> function) 
+    => IterationCore.Loop(
+        sequence, 
+        (ref Iterator<TEntry> i) => 
         {
-            function(i.Current);
-            i.Break();
-        }
+            TReturn? returnValue = default;
 
-        return returnValue;            
-    });
+            if(condition(i.Current))
+            {
+                returnValue = function(i.Current);
+                i.Break();
+            }
+
+            return returnValue;            
+        });
 }

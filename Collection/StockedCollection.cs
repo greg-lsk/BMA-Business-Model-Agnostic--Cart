@@ -41,12 +41,12 @@ internal class StockedCollection<TItem>
 
     internal void Remove(TItem item) => 
     Iteration.On(_items)
-             .WhenMet(i => _equals(i.Item, item), i => _items.Remove(i));
-    
-    internal int CountOf(TItem item) =>
-    Iteration.On(_items)
              .ActWhen(condition: i => _equals(i.Item, item),
-                      function:  i => i.Quantity);
+                      action:    i => _items.Remove(i));
+    
+    internal int CountOf(TItem item) => Iteration.On(_items)
+                                                 .When(i => _equals(i.Item, item))
+                                                 .Run(i => i.Quantity);
         
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
     Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>

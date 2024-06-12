@@ -41,6 +41,9 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 
     internal void Run(EntryAction<TEntry> action) => Loop((ref Iterator<TEntry> i) => action(i.Current));
 
+
+    internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);
+
     internal void ActWhen(Predicate<TEntry> condition, Action<TEntry> action) => 
     Loop((ref Iterator<TEntry> i) => 
     {
@@ -86,4 +89,10 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 
         return returnValue;
     }    
+}
+
+internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
+{
+    private readonly IEnumerable<TEntry> _sequence = sequence;
+    private readonly Predicate<TEntry> _condition = condition;
 }

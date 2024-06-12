@@ -36,10 +36,14 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
 
-    internal void Run(ActionViaIterator<TEntry> action) => Loop(action);
-    internal TReturn? Run<TReturn>(FunctionViaIterator<TEntry, TReturn> function) => Loop(function);
+    internal void Run(ActionViaIterator<TEntry> action) 
+    => IterationCore.Loop(_sequence, action);
+    
+    internal TReturn? Run<TReturn>(FunctionViaIterator<TEntry, TReturn> function) 
+    => IterationCore.Loop(_sequence, function);
 
-    internal void Run(EntryAction<TEntry> action) => Loop((ref Iterator<TEntry> i) => action(i.Current));
+    internal void Run(EntryAction<TEntry> action) 
+    => IterationCore.Loop(_sequence, (ref Iterator<TEntry> i) => action(i.Current));
 
 
     internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);
@@ -64,11 +68,21 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
             i.Break();
         }
         return returnValue;
-    });     
-    
-    private void Loop(ActionViaIterator<TEntry> action)
+    });         
+}
+
+internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
+{
+    private readonly IEnumerable<TEntry> _sequence = sequence;
+    private readonly Predicate<TEntry> _condition = condition;
+}
+
+internal static class IterationCore
+{
+    internal static void Loop<TEntry>(IEnumerable<TEntry> sequence,
+                                     ActionViaIterator<TEntry> action)
     {
-        var iterator = new Iterator<TEntry>(_sequence);
+        var iterator = new Iterator<TEntry>(sequence);
 
         do{
             action(ref iterator);
@@ -76,9 +90,10 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         }while(iterator.CanIncrement);
     }
 
-    private TReturn? Loop<TReturn>(FunctionViaIterator<TEntry, TReturn> function)
+    internal static TReturn? Loop<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                  FunctionViaIterator<TEntry, TReturn> function)
     {
-        var iterator = new Iterator<TEntry>(_sequence);
+        var iterator = new Iterator<TEntry>(sequence);
         
         TReturn? returnValue;
 
@@ -88,11 +103,5 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
         }while(iterator.CanIncrement);
 
         return returnValue;
-    }    
-}
-
-internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
-{
-    private readonly IEnumerable<TEntry> _sequence = sequence;
-    private readonly Predicate<TEntry> _condition = condition;
+    }
 }

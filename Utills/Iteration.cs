@@ -24,7 +24,7 @@ internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
 
     internal void Break() => _isBroken = true;
     internal void Move(int step = 1) => _currentIndex+=step;
-    internal void Reset() {_currentIndex = 0; _isBroken = false;} 
+    internal void Reset() {_currentIndex = _indexerStart; _isBroken = false;} 
 }
 
 internal ref struct Tracker<TSubject>

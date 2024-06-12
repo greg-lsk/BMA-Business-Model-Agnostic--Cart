@@ -26,7 +26,7 @@ internal class StockedCollection<TItem>
         get
         {
             int total = 0;
-            Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) => total += i.Current.Quantity);
+            Iteration.On(_items).Run(i => total += i.Quantity);
             return total;
         }
     }

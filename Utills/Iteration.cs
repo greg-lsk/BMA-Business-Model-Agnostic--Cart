@@ -27,18 +27,6 @@ internal ref struct Iterator<TEntry>(IEnumerable<TEntry> sequence)
     internal void Reset() {_currentIndex = _indexerStart; _isBroken = false;} 
 }
 
-internal ref struct Tracker<TSubject>
-{
-    private ref TSubject? _subject;
-
-    public Tracker(ref TSubject? subject) => _subject = ref subject;
-
-    internal readonly TSubject? Captured => _subject;
-
-    internal void Capture(in TSubject? subject) => _subject = subject;
-     
-}
-
 internal readonly struct Iteration
 {
     internal static ActionProvider<TEntry> On<TEntry>(IEnumerable<TEntry> sequence) => new(sequence);

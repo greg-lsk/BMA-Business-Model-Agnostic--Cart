@@ -38,7 +38,7 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
 
     internal void Run(ActionViaIterator<TEntry> action) 
     => IterationCore.Loop(_sequence, action);
-    
+
     internal TReturn? Run<TReturn>(FunctionViaIterator<TEntry, TReturn> function) 
     => IterationCore.Loop(_sequence, function);
 
@@ -54,11 +54,11 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal void Run(EntryAction<TEntry> action) =>
-    ConditionCore.ActWhen(_sequence, _condition, action);
+    internal void Run(EntryAction<TEntry> action) 
+    => ConditionCore.ActWhen(_sequence, _condition, action);
 
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) =>
-    ConditionCore.ActWhen(_sequence, _condition, function);
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) 
+    => ConditionCore.ActWhen(_sequence, _condition, function);
 }
 
 

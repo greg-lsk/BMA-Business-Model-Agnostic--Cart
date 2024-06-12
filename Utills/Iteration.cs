@@ -46,39 +46,53 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
     => IterationCore.Loop(_sequence, (ref Iterator<TEntry> i) => action(i.Current));
 
 
-    internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);
-
-    internal void ActWhen(Predicate<TEntry> condition, Action<TEntry> action) => 
-    Loop((ref Iterator<TEntry> i) => 
-    {
-        if(condition(i.Current))
-        {
-            action(i.Current);
-            i.Break();
-        }
-    });
-
-    internal TReturn? ActWhen<TReturn>(Predicate<TEntry> condition, EntryFunction<TEntry, TReturn> function) => 
-    Loop((ref Iterator<TEntry> i) => 
-    {
-        TReturn? returnValue = default;
-        if(condition(i.Current))
-        {
-            returnValue = function(i.Current);
-            i.Break();
-        }
-        return returnValue;
-    });         
+    internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);         
 }
 
 internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
+
+    internal void Run(EntryAction<TEntry> action) =>
+    IterationCore.ActWhen(_sequence, _condition, action);
+
+    internal void Run<TReturn>(EntryFunction<TEntry, TReturn> function) =>
+    IterationCore.ActWhen(_sequence, _condition, function);
 }
+
 
 internal static class IterationCore
 {
+    internal static void ActWhen<TEntry>(IEnumerable<TEntry> sequence,
+                                        Predicate<TEntry> condition,
+                                        EntryAction<TEntry> action)
+    => Loop(sequence, (ref Iterator<TEntry> i) => 
+    {
+        if(condition(i.Current))
+        {
+            action(i.Current);
+            i.Break();
+        }            
+    });
+    
+    internal static TReturn? ActWhen<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                      Predicate<TEntry> condition,
+                                                      EntryFunction<TEntry, TReturn> function)
+    => Loop(sequence, (ref Iterator<TEntry> i) => 
+    {
+        TReturn? returnValue = default;
+
+        if(condition(i.Current))
+        {
+            function(i.Current);
+            i.Break();
+        }
+
+        return returnValue;            
+    });    
+
+
     internal static void Loop<TEntry>(IEnumerable<TEntry> sequence,
                                      ActionViaIterator<TEntry> action)
     {

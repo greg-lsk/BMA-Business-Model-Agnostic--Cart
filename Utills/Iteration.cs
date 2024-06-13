@@ -59,8 +59,22 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
 
     internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) 
     => ConditionCore.ActWhen(_sequence, _condition, function);
+
+    internal FinalProvider<TEntry, TReturn> TryRun<TReturn>(EntryFunction<TEntry, TReturn> function) 
+    => new(_sequence, _condition, function);
+    
 }
 
+internal readonly struct FinalProvider<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+                                                        Predicate<TEntry> condition,
+                                                        EntryFunction<TEntry, TReturn> function)
+{
+    private readonly IEnumerable<TEntry> _sequence = sequence;
+    private readonly Predicate<TEntry> _condition = condition;
+    private readonly EntryFunction<TEntry, TReturn> _function = function;
+
+    internal TReturn? Finally(Func<TReturn> action) => default;
+}
 
 internal static class IterationCore
 {    

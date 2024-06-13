@@ -43,7 +43,6 @@ internal class StockedCollection<TItem>
                                                  .When(i => _equals(i.Item, item))
                                                  .Run(_items.Remove);
             
-    
     internal int CountOf(TItem item) => Iteration.On(_items)
                                                  .When(i => _equals(i.Item, item))
                                                  .Run(i => i.Quantity);
@@ -52,12 +51,8 @@ internal class StockedCollection<TItem>
     Iteration.On(_items).Run((ref Iterator<(TItem Item, int Quantity)> i) =>
     {
         var found = _equals(i.Current.Item, item);
-
-        if(found)
-        {
-            t.Capture(found);
-            i.Break();
-        }
+        if(found) i.Break();
+        return found;
     });
     
     internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

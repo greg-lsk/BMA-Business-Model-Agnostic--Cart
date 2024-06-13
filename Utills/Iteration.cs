@@ -54,16 +54,15 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal void Run(EntryAction<TEntry> action) 
-    => ConditionCore.ActWhen(_sequence, _condition, action);
-
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) 
-    => ConditionCore.ActWhen(_sequence, _condition, function);
-
     internal TReturn? Map<TReturn>(
         EntryFunction<TEntry, TReturn> onTrue,
         EntryFunction<TEntry, TReturn>? onFalse = null, 
-        Func<TReturn>? onNone = null) => default;    
+        Func<TReturn>? onNone = null) => default;
+
+    internal TReturn? Map<TReturn>(
+        Func<TReturn> onTrue,
+        Func<TReturn>? onFalse = null, 
+        Func<TReturn>? onNone = null) => default;            
 }
 
 internal static class IterationCore

@@ -62,7 +62,11 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
 
     internal FinalProvider<TEntry, TReturn> TryRun<TReturn>(EntryFunction<TEntry, TReturn> function) 
     => new(_sequence, _condition, function);
-    
+
+    internal TReturn? Map<TReturn>(
+        EntryFunction<TEntry, TReturn> onTrue,
+        EntryFunction<TEntry, TReturn>? onFalse = null, 
+        Func<TReturn>? onNone = null) => default;    
 }
 
 internal readonly struct FinalProvider<TEntry, TReturn>(IEnumerable<TEntry> sequence,

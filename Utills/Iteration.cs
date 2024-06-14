@@ -62,14 +62,16 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     => ConditionCore.Branching(_sequence, _condition, action);        
 }
 
+internal delegate PostEvaluationFunction<TEntry, TReturn> ToFunctionMapping<TEntry, TReturn>(bool delegateResult);
+internal delegate TReturn? NoHitFunction<TReturn>(); 
 internal readonly struct MappingProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
 {
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
     internal TReturn? Map<TReturn>(
-        Func<bool, PostEvaluationFunction<TEntry, TReturn>> mapper,
-        Func<TReturn>? none = default) => default;    
+        ToFunctionMapping<TEntry, TReturn> mapping,
+        NoHitFunction<TReturn>? none = default) => default;    
 }
 
 internal static class IterationCore

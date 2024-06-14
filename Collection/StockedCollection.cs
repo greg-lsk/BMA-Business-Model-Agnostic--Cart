@@ -43,16 +43,16 @@ internal class StockedCollection<TItem>
             
     internal int? CountOf(TItem item) 
     => Iteration.On(_items)
-                .When(i => _equals(i.Item, item))
-                .Maps(r => r switch{
+                .Apply(i => _equals(i.Item, item))
+                .Map(e => e switch{
                     true  => new(i => i.Quantity),
                     false => default
                 },  none: () => default(int?));
         
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
     Iteration.On(_items)
-             .When(i => _equals(i.Item, item))
-             .Maps(r => r switch{
+             .Apply(i => _equals(i.Item, item))
+             .Map(e => e switch{
                 true  => new(true),
                 false => default
              }, none: () => false);

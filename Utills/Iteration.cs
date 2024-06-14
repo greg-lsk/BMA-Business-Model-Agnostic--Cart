@@ -55,7 +55,11 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => default;        
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function)
+    => ConditionCore.Branching(_sequence, _condition, function);
+
+    internal void Run<TReturn>(EntryAction<TEntry> action)
+    => ConditionCore.Branching(_sequence, _condition, action);        
 }
 
 internal readonly struct MappingProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
@@ -99,7 +103,7 @@ internal static class IterationCore
 
 internal static class ConditionCore
 {
-    internal static void ActWhen<TEntry>(IEnumerable<TEntry> sequence,
+    internal static void Branching<TEntry>(IEnumerable<TEntry> sequence,
                                          Predicate<TEntry> condition,
                                          EntryAction<TEntry> action) 
     => IterationCore.Loop(
@@ -114,7 +118,7 @@ internal static class ConditionCore
         });
  
     
-    internal static TReturn? ActWhen<TEntry, TReturn>(IEnumerable<TEntry> sequence,
+    internal static TReturn? Branching<TEntry, TReturn>(IEnumerable<TEntry> sequence,
                                                       Predicate<TEntry> condition,
                                                       EntryFunction<TEntry, TReturn> function) 
     => IterationCore.Loop(

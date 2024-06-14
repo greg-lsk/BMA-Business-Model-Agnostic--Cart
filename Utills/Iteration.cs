@@ -64,7 +64,7 @@ internal readonly struct MappingProvider<TEntry>(IEnumerable<TEntry> sequence, P
     private readonly Predicate<TEntry> _condition = condition;
 
     internal TReturn? Map<TReturn>(
-        Func<bool, Map<TEntry, TReturn>> mapper,
+        Func<bool, PostEvaluationFunction<TEntry, TReturn>> mapper,
         Func<TReturn>? none = default) => default;    
 }
 
@@ -133,13 +133,12 @@ internal static class ConditionCore
         });
 }
 
-internal readonly struct Map<TEntry, TReturn>
+internal readonly struct PostEvaluationFunction<TEntry, TReturn>
 {
     internal Delegate? Delegate { get; } = null;
 
+    internal PostEvaluationFunction(TReturn? returnValue) {Delegate = () => returnValue;}
 
-    internal Map(TReturn? returnValue) {Delegate = () => returnValue;}
-
-    internal Map(Func<TReturn> function) {Delegate = function;}
-    internal Map(Func<TEntry, TReturn> function) {Delegate = function;}         
+    internal PostEvaluationFunction(Func<TReturn> function) {Delegate = function;}
+    internal PostEvaluationFunction(Func<TEntry, TReturn> function) {Delegate = function;}         
 }

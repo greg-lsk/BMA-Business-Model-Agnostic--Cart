@@ -45,13 +45,13 @@ internal class StockedCollection<TItem>
             
     internal int? CountOf(TItem item) => Iteration.On(_items)
                                                   .When(i => _equals(i.Item, item))
-                                                  .TryRun(i => i.Quantity as int?)
-                                                  .Finally(() => null);
+                                                  .Map(onTrue: i => i.Quantity as int?,
+                                                       onNone: () => null);
         
     internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
     Iteration.On(_items)
              .When(i => _equals(i.Item, item))
-             .Map(onTrue: i => true,
+             .Map(onTrue: () => true,
                   onNone: () => false);
     
     internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());

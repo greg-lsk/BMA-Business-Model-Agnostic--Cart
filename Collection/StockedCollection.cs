@@ -41,7 +41,7 @@ internal class StockedCollection<TItem>
 
     internal void Remove(TItem item) => Iteration.On(_items)
                                                  .When(i => _equals(i.Item, item))
-                                                 .Map(_items.Remove);
+                                                 .Run(_items.Remove);
             
     internal int? CountOf(TItem item) => Iteration.On(_items)
                                                   .When(i => _equals(i.Item, item))

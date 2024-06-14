@@ -46,7 +46,8 @@ internal readonly struct ActionProvider<TEntry>(IEnumerable<TEntry> sequence)
     => IterationCore.Loop(_sequence, (ref Iterator<TEntry> i) => action(i.Current));
 
 
-    internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);         
+    internal ConditionalProvider<TEntry> When(Predicate<TEntry> condition) => new(_sequence, condition);
+    internal MappingProvider<TEntry> Apply(Predicate<TEntry> condition) => new(_sequence, condition);          
 }
 
 internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
@@ -54,11 +55,17 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => default;
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => default;        
+}
 
-    internal TReturn? Maps<TReturn>(
+internal readonly struct MappingProvider<TEntry>(IEnumerable<TEntry> sequence, Predicate<TEntry> condition)
+{
+    private readonly IEnumerable<TEntry> _sequence = sequence;
+    private readonly Predicate<TEntry> _condition = condition;
+
+    internal TReturn? Map<TReturn>(
         Func<bool, Map<TEntry, TReturn>> mapper,
-        Func<TReturn>? none = default) => default;        
+        Func<TReturn>? none = default) => default;    
 }
 
 internal static class IterationCore

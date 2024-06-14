@@ -62,7 +62,16 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     internal TReturn? Map<TReturn>(
         Func<TReturn> onTrue,
         Func<TReturn>? onFalse = null, 
-        Func<TReturn>? onNone = null) => default;            
+        Func<TReturn>? onNone = null) => default;
+
+    // internal TReturn? Maps<TReturn>(
+    //     Map<TEntry, TReturn> onTrue,
+    //     Map<TEntry, TReturn>? onFalse = null, 
+    //     Map<TEntry, TReturn>? onNone = null) => default;
+
+    internal TReturn? Maps<TReturn>(
+        Func<bool, Map<TEntry, TReturn>> mapper,
+        Func<TReturn>? none = default) => default;        
 }
 
 internal static class IterationCore
@@ -128,4 +137,15 @@ internal static class ConditionCore
 
             return returnValue;            
         });
+}
+
+internal readonly struct Map<TEntry, TReturn>
+{
+    internal Delegate? Delegate { get; } = null;
+
+
+    internal Map(TReturn? returnValue) {Delegate = () => returnValue;}
+
+    internal Map(Func<TReturn> function) {Delegate = function;}
+    internal Map(Func<TEntry, TReturn> function) {Delegate = function;}         
 }

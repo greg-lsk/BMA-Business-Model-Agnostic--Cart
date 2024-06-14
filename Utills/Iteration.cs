@@ -54,20 +54,7 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal TReturn? Map<TReturn>(
-        EntryFunction<TEntry, TReturn> onTrue,
-        EntryFunction<TEntry, TReturn>? onFalse = null, 
-        Func<TReturn>? onNone = null) => default;
-
-    internal TReturn? Map<TReturn>(
-        Func<TReturn> onTrue,
-        Func<TReturn>? onFalse = null, 
-        Func<TReturn>? onNone = null) => default;
-
-    // internal TReturn? Maps<TReturn>(
-    //     Map<TEntry, TReturn> onTrue,
-    //     Map<TEntry, TReturn>? onFalse = null, 
-    //     Map<TEntry, TReturn>? onNone = null) => default;
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) => default;
 
     internal TReturn? Maps<TReturn>(
         Func<bool, Map<TEntry, TReturn>> mapper,

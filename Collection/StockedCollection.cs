@@ -49,13 +49,13 @@ internal class StockedCollection<TItem>
                     false => default
                 },  none: () => default(int?));
         
-    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) => 
-    Iteration.On(_items)
-             .Apply(i => _equals(i.Item, item))
-             .Map(e => e switch{
-                true  => new(true),
-                false => default
-             }, none: () => false);
+    internal bool Contains(TItem item, EqualityDelegate<TItem> equalityDelegate) 
+    => Iteration.On(_items)
+                .Apply(i => _equals(i.Item, item))
+                .Map(e => e switch{
+                    true  => new(true),
+                    false => default
+                }, none: () => false);
     
     internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 }

@@ -55,7 +55,7 @@ internal class StockedCollection<TItem>
                 .Map(e => e switch{
                     true  => new(true),
                     false => default
-                }, none: () => false);
+                },  none: () => false);
     
     internal ReadOnlyCollection<(TItem Product, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 }

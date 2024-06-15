@@ -55,8 +55,12 @@ internal readonly struct ConditionalProvider<TEntry>(IEnumerable<TEntry> sequenc
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function)
-    => ConditionCore.Branching(_sequence, _condition, function);
+    internal TReturn? Run<TReturn>(EntryFunction<TEntry, TReturn> function) =>
+        ConditionCore.Branching<TEntry, TReturn>(_sequence, _condition, e => e switch
+        {
+            true => new(function),
+            false => default
+        });
 
     internal void Run<TReturn>(EntryAction<TEntry> action)
     => ConditionCore.Branching(_sequence, _condition, action);        
@@ -69,9 +73,9 @@ internal readonly struct MappingProvider<TEntry>(IEnumerable<TEntry> sequence, P
     private readonly IEnumerable<TEntry> _sequence = sequence;
     private readonly Predicate<TEntry> _condition = condition;
 
-    internal TReturn? Map<TReturn>(
-        ToFunctionMapping<TEntry, TReturn> mapping,
-        NoHitFunction<TReturn>? none = default) => default;    
+    internal TReturn? Map<TReturn>(ToFunctionMapping<TEntry, TReturn> mapping,
+                                   NoHitFunction<TReturn>? none = default) =>
+        ConditionCore.Branching(_sequence, _condition, mapping, none);
 }
 
 internal static class IterationCore
@@ -106,8 +110,8 @@ internal static class IterationCore
 internal static class ConditionCore
 {
     internal static void Branching<TEntry>(IEnumerable<TEntry> sequence,
-                                         Predicate<TEntry> condition,
-                                         EntryAction<TEntry> action) 
+                                           Predicate<TEntry> condition,
+                                           EntryAction<TEntry> action) 
     => IterationCore.Loop(
         sequence, 
         (ref Iterator<TEntry> i) => 
@@ -121,22 +125,32 @@ internal static class ConditionCore
  
     
     internal static TReturn? Branching<TEntry, TReturn>(IEnumerable<TEntry> sequence,
-                                                      Predicate<TEntry> condition,
-                                                      EntryFunction<TEntry, TReturn> function) 
-    => IterationCore.Loop(
-        sequence, 
-        (ref Iterator<TEntry> i) => 
+                                                        Predicate<TEntry> condition,
+                                                        ToFunctionMapping<TEntry, TReturn> mapping,
+                                                        NoHitFunction<TReturn>? onNone = default) =>
+        IterationCore.Loop(sequence, (ref Iterator<TEntry> i) =>
         {
-            TReturn? returnValue = default;
+            TReturn? returnValue = InvokeMapping(mapping, in i, condition(i.Current));
 
-            if(condition(i.Current))
-            {
-                returnValue = function(i.Current);
-                i.Break();
-            }
-
-            return returnValue;            
+            i.Break();
+            return returnValue;
         });
+
+
+    private static TReturn? InvokeMapping<TEntry, TReturn>(ToFunctionMapping<TEntry, TReturn> mapping,
+                                                           in Iterator<TEntry> iterator,
+                                                           bool result)
+    {
+        var map = mapping(result).Delegate;
+        return map switch
+        {
+            null => default,
+            Func<TReturn> function => function.Invoke(), 
+            EntryFunction<TEntry, TReturn> entryFunction => entryFunction.Invoke(iterator.Current),
+            
+            _ => throw new ArgumentException()
+        };            
+    }
 }
 
 internal readonly struct PostEvaluationFunction<TEntry, TReturn>
@@ -146,5 +160,5 @@ internal readonly struct PostEvaluationFunction<TEntry, TReturn>
     internal PostEvaluationFunction(TReturn? returnValue) {Delegate = () => returnValue;}
 
     internal PostEvaluationFunction(Func<TReturn> function) {Delegate = function;}
-    internal PostEvaluationFunction(Func<TEntry, TReturn> function) {Delegate = function;}         
+    internal PostEvaluationFunction(EntryFunction<TEntry, TReturn> function) {Delegate = function;}         
 }

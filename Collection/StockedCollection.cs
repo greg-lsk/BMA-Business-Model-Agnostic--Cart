@@ -20,7 +20,7 @@ internal class StockedCollection<TItem>
     }
 
     internal NewEntry<TItem> NewEntry => _newEntry;
-    internal NewEntry<TItem> NewEntry => _newEntry;
+
     internal int CountDistinct => _items.Count;
     internal int CountTotal
     {
@@ -33,7 +33,6 @@ internal class StockedCollection<TItem>
     }
 
     internal (TItem Item, int Quantity) this[int index]
-    internal (TItem Item, int Quantity) this[int index]
     {
         get => _items[index];
         set => _items[index] = value;
@@ -45,8 +44,8 @@ internal class StockedCollection<TItem>
             
     internal int? CountOf(TItem item) 
     => Iteration.On(_items)
-                .When(i => _equals(i.Item, item))
-                .Maps(r => r switch{
+                .Apply(i => _equals(i.Item, item))
+                .Map(r => r switch{
                     true  => new(i => i.Quantity),
                     false => default
                 },  none: () => default(int?));
@@ -57,7 +56,7 @@ internal class StockedCollection<TItem>
                 .Map(e => e switch{
                     true  => new(true),
                     false => default
-                }, none: () => false);
+                },  none: () => false);
     
     internal ReadOnlyCollection<(TItem Item, int Quantity)> AsReadonly() => Array.AsReadOnly(_items.ToArray());
 }
